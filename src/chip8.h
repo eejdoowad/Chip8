@@ -2,6 +2,7 @@
 #include <stdint.h>
 
 #define MEM_BYTES 4096
+#define START_ADDRESS 0x200
 #define SCR_W 64
 #define SCR_H 32
 
@@ -17,5 +18,5 @@ typedef struct
 	uint8_t screen[SCR_W * SCR_H];
 	uint8_t delay_timer;
 	uint8_t sound_timer;
-	uint8_t key[16]; //@ what's this?
+	uint8_t key[16];
 } Chip8;
