@@ -1,4 +1,5 @@
 #include "c8_actions.h"
+#include "instructions.h"
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -79,7 +80,7 @@ void cpu_run(CPU * const cpu)
 {
 	for (;;)
 	{
-
+		cpu->opcode = ((uint16_t)cpu->mem[cpu->PC] << 8) | (cpu->mem[cpu->PC + 1]);
 	}
 }
 
@@ -115,4 +116,92 @@ void cpu_loadROM(CPU * const cpu, char const * const game_file) //loads the game
 void cpu_decodeAndExecute(CPU * const cpu)
 {
 
+}
+
+
+
+void c8_decodeAndExecute(CPU * const cpu)
+{
+
+	c8_instruction_table[(cpu->opcode & 0xF000) >> 12](cpu);
+}
+
+void (*c8_instruction_table[16])(CPU * const cpu) = 
+{
+	c8_0xxx_instruction, 			// 0, high order nibble
+	c8_i_jumpImmediate, 			// 1
+	c8_i_callSubroutine, 			// 2
+	c8_i_skipEqualImmediate, 		// 3
+	c8_i_skipNotEqualImmediate,		// 4
+	c8_i_skipEqualRegister, 		// 5
+	c8_i_loadImmediate, 			// 6
+	c8_i_addImmediate, 				// 7 
+	c8_8xxx_instruction, 			// 8
+	c8_i_skipNotEqualRegister, 		// 9
+	c8_i_loadToI, 					// A
+	c8_i_jumpV0Offset, 				// B
+	c8_i_loadRandom, 				// C
+	c8_i_draw, 						// D
+	c8_Exxx_instruction, 			// E
+	c8_Fxxx_instruction, 			// F
+};
+
+void c8_8xxx_instruction(CPU * const cpu)
+{
+	//* switch (cpu->opcode & 0x000F)
+}
+
+void c8_0xxx_instruction(CPU * const cpu) // handles instructions with high-order nibble 0
+{
+	if (cpu->opcode == 0x00E0)
+	{
+		c8_i_clearDisplay(cpu);
+	}
+	else if (cpu->opcode == 0x00EE)
+	{
+		c8_i_subroutineReturn(cpu);
+	}
+	else
+	{
+		c8_i_jumpRoutine(cpu);
+	}
+}
+
+void c8_Exxx_instruction(CPU * const cpu) // handles instructions with high-order nibble E
+{
+	if ((cpu->opcode & 0xF0FF) == 0xE09E)
+	{
+		c8_i_skipButtonPressed(cpu);
+	}
+	else
+	{
+		c8_i_skipNotPressed(cpu);
+	}
+}
+
+void c8_Fxxx_instruction(CPU * const cpu) // handles instructions with high-order nibble F
+{
+	switch (cpu->opcode & 0x00FF)
+	{
+		case 0x07 :
+			c8_i_loadDelayTimer(cpu); 			break;
+		case 0x0A :
+			c8_i_waitForThenStoreButton(cpu); 	break;
+		case 0x15 :
+			c8_i_loadToDelayTimer(cpu); 		break;
+		case 0x18 :
+			c8_i_loadToSoundTimer(cpu); 		break;
+		case 0x1E :
+			c8_i_addToI(cpu); 					break;
+		case 0x29 :
+			c8_i_loadFontToI(cpu); 			break;
+		case 0x33 :
+			c8_i_loadBCD(cpu); 				break;
+		case 0x55 :
+			c8_i_storeVRegisters(cpu); 		break;
+		case 0x65 :
+			c8_i_loadVRegisters(cpu); 			break;
+		default :
+			fprintf(stderr, "Instruction fell through Fxxx swith table");
+	}
 }
