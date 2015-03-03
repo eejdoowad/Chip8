@@ -1,32 +1,33 @@
 #include "c8_actions.h"
-
+#include <stdio.h>
+#include <stdlib.h>
 
 // initializes registers and memory
-void c8_initialize(Chip8 * const c8)
+void cpu_initialize(CPU * const cpu)
 {
 	// Reset Registers
-	c8->PC = START_ADDRESS;
-	c8->opcode = 0x00;
-	c8->I = 0x00;
-	c8->SP = 0x0;
+	cpu->PC = START_ADDRESS;
+	cpu->opcode = 0x00;
+	cpu->I = 0x00;
+	cpu->SP = 0x0;
 
 	for (int i = 0; i < 16; ++i)
 	{
-		c8->stack[i] = 0x00;
-		c8->V[i] = 0x00;
+		cpu->stack[i] = 0x00;
+		cpu->V[i] = 0x00;
 	}
 
-	c8_zeroMemory(c8);
-	c8_clearDisplay(c8);
-	c8_loadFontSet(c8);
+	cpu_zeroMemory(cpu);
+	cpu_clearDisplay(cpu);
+	cpu_loadFontSet(cpu);
 
 	// Reset timers
 	// TODO
 }
 
-void c8_loadFontSet(Chip8 * const c8) // loads font set into first 80 memory addresses
+void cpu_loadFontSet(CPU * const cpu) // loads font set into first 80 memory addresses
 {
-	uint8_t chip8_fontset[80] =
+	uint8_t CPU_fontset[80] =
 	{ 
 	  0xF0, 0x90, 0x90, 0x90, 0xF0, // 0
 	  0x20, 0x60, 0x20, 0x20, 0x70, // 1
@@ -48,63 +49,70 @@ void c8_loadFontSet(Chip8 * const c8) // loads font set into first 80 memory add
 
 	for (int i = 0; i < 80; ++i)
 	{
-		c8->mem[i] = chip8_fontset[i];
+		cpu->mem[0x50 + i] = CPU_fontset[i];
 	}
 }
 
-void c8_zeroMemory(Chip8 * const c8) // initializes all of memory to zero
+void cpu_zeroMemory(CPU * const cpu) // initializes all of memory to zero
 {
 	for (int i = 0; i < MEM_BYTES; ++i)
 	{
-		c8->mem[i] = 0x00;
+		cpu->mem[i] = 0x00;
 	}
 }
 
 
-void c8_clearDisplay(Chip8 * const c8) // clears the display
+void cpu_clearDisplay(CPU * const cpu) // clears the display
 {
 		// uint8_t	screen[SCR_W * SCR_H];
 	for (int i = 0; i < SCR_H; ++i)
 	{
 		for (int j = 0; j < SCR_W; ++j)
 		{
-			c8->screen[(i * SCR_H) + j] = 0;
-			printf("Zeroing %d, %d", i, j);
+			cpu->screen[(i * SCR_W) + j] = 0;
 		}
-		putchar('\n');
 	}
 
 }
 
+void cpu_run(CPU * const cpu)
+{
+	for (;;)
+	{
+
+	}
+}
+
 // performs fetch, decode, execute, and timer update
-void c8_emulateCycle(Chip8 * const c8)
+void cpu_emulateCycle(CPU * const cpu)
 {
 	// Fetch Opcode
-	c8->opcode = ((uint16_t)c8->mem[c8->PC] << 8) | (c8->mem[c8->PC + 1]);
+	cpu->opcode = ((uint16_t)cpu->mem[cpu->PC] << 8) | (cpu->mem[cpu->PC + 1]);
 
 	//* Should decode and execute be coupled into a single function? load next pc at end of execution
 	//* Decode and Execute Opcode
-	c8_decodeAndExecute(c8);
+	cpu_decodeAndExecute(cpu);
 
 	//* Update timers
 }
 
-void c8_loadGame(Chip8 * const c8, char const * const game_file) //loads the game into memory
+void cpu_loadROM(CPU * const cpu, char const * const game_file) //loads the game into memory
 {
-	uint16_t buffer_size = 0;
-	uint8_t buffer[MEM_BYTES - START_ADDRESS];
-	//* open game_file using fopen()
+	FILE * fp;
+	if ((fp = fopen(game_file, "r")) == NULL)
+	{
+		fprintf(stderr, "Opening ROM failed");
+		exit(1);
+	}
 
-	//	load game file
-		for (int i = 0; i < buffer_size; ++i)
-		{
-			c8->mem[i + START_ADDRESS] = buffer[i];
-		}
+	int numread = fread(cpu->mem + START_ADDRESS, 1, MEM_BYTES - START_ADDRESS, fp);
+	printf("\nBytes read from ROM: %d\n", numread);
+	fclose(fp);
 }
 
 
 
-void c8_decodeAndExecute(Chip8 * const c8)
+void cpu_decodeAndExecute(CPU * const cpu)
 {
 
 }

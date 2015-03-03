@@ -13,14 +13,14 @@ OBJ=$(patsubst %.o,%.c,$(SRC))
 	@echo CC $<
 	@$(CC) -c $(CFLAGS) $<
 
-all: chip8
+all: $(MAIN)
 
-chip8: $(OBJ)
+$(MAIN): $(OBJ)
 	@echo cc -o $@
 	@$(CC) -o $@ $(OBJ) $(LDFLAGS)
 
 clean:
 	@echo cleaning
-	@rm chip8
+	@rm $(MAIN)
 
 .PHONY: all options clean

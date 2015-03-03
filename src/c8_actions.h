@@ -1,17 +1,19 @@
 #pragma once
 
-#include "chip8.h"
+#include "CPU.h"
 
-void c8_initialize(Chip8 * const my_chip8); // initializes chip8 registers and memory
+void cpu_initialize(CPU * const cpu); // initializes CPU registers and memory
 
-void c8_loadFontSet(Chip8 * const my_chip8); // loads font set into first 80 memory addresses
+void cpu_loadFontSet(CPU * const cpu); // loads font set into first 80 memory addresses
 
-void c8_zeroMemory(Chip8 * const my_chip8); // initializes all of memory to zero
+void cpu_zeroMemory(CPU * const cpu); // initializes all of memory to zero
 
-void c8_clearDisplay(Chip8 * const my_chip8); // clears (zeroes the display)
+void cpu_clearDisplay(CPU * const cpu); // clears (zeroes the display)
 
-void c8_emulateCycle(Chip8 * const my_chip8); // perfoerms fetch, decode, execute, and timer update
+void cpu_run(CPU * const cpu);
 
-void c8_loadGame(Chip8 * const my_chip8, char const * const game_file); //loads the game into memory
+void cpu_emulateCycle(CPU * const cpu); // perfoerms fetch, decode, execute, and timer update
 
-void c8_decodeAndExecute(Chip8 * const my_chip8); // handles decode and execute cycle by calling appropriate instructions.
+void cpu_loadROM(CPU * const cpu, char const * const game_file); //loads the game into memory
+
+void cpu_decodeAndExecute(CPU * const cpu); // handles decode and execute cycle by calling appropriate instructions.

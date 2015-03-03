@@ -1,6 +1,35 @@
 #include "c8_util.h"
 
-void c8_print_mem(Chip8 const * const c8, uint16_t first, uint16_t last)
+void cpu_print_regs(CPU const * const cpu)
+{
+	printf("op 0x%04x     PC 0x%04x     I 0x%04x\nSP 0x%02x       delay 0x%02x    sound 0x%02x\n\n", cpu->opcode, cpu->PC, cpu->I, cpu->SP, cpu->delay_timer, cpu->sound_timer);
+	printf("#     V        Stack    Keys\n");
+	for (int i = 0; i < 16; i++)
+	{
+		printf("%1x     %04x     %04x     %04x\n", i, cpu->V[i], cpu->stack[i], cpu->key[i]);
+	}
+}
+
+void cpu_print_screen(CPU const * const cpu)
+{
+	printf("    0         1         2         3         4         5         6   \n");
+	printf("    0123456789012345678901234567890123456789012345678901234567890123\n\n");
+	for (int i = 0; i < SCR_H; i++)
+	{
+		printf("%02d  ", i);
+		for (int j = 0; j < SCR_W; j++)
+		{
+			putchar(cpu->screen[i * SCR_W + j] ? '@' : ' ');
+		}
+		printf("  %02d\n", i);
+	}
+	printf("\n");
+	printf("    0         1         2         3         4         5         6   \n");
+	printf("    0123456789012345678901234567890123456789012345678901234567890123\n\n");
+}
+
+
+void cpu_print_mem(CPU const * const cpu, uint16_t first, uint16_t last)
 {
 	if ((first < 0) || (last > 4096) || first > last)
 	{
@@ -8,16 +37,7 @@ void c8_print_mem(Chip8 const * const c8, uint16_t first, uint16_t last)
 		exit(1);
 	}
 
-	printf("op 0x%04x     PC 0x%04x     I 0x%04x\nSP 0x%02x       delay 0x%02x    sound 0x%02x\n\n", c8->opcode, c8->PC, c8->I, c8->SP, c8->delay_timer, c8->sound_timer);
-	printf("#     V        Stack    Keys\n");
-	for (int i = 0; i < 16; i++)
-	{
-		printf("%1x     %04x     %04x     %04x\n", i, c8->V[i], c8->stack[i], c8->key[i]);
-	}
-
-	printf("\n");
-
-	uint8_t const * const mem = c8->mem;
+	uint8_t const * const mem = cpu->mem;
 	//print heading row header
 	printf("------"); //10 spaces
 	for (uint16_t i = 0; i < 0xF; ++i)
@@ -64,30 +84,11 @@ void c8_print_mem(Chip8 const * const c8, uint16_t first, uint16_t last)
 		printf("   ");
 	}
 	printf("\n\n");
+}
 
-
-	// print screen snapshot
-	for (int i = 0; i < SCR_W + 2; ++i)
-	{
-		printf("-");
-	}
-	printf("\n");
-	for (int i = 0; i < SCR_H; ++i)
-	{
-		printf("|");
-		for (int j = 0; j < SCR_W; ++j)
-		{
-			// putchar((c8->screen[i * SCR_W + j]) ? '@' : ' ');
-			if (c8->screen[i * SCR_W + j] != 0)
-			{
-				printf("i: %d, j: %d\t", i, j);
-			}
-		}
-		printf("|\n");
-	}
-	for (int i = 0; i < SCR_W + 2; ++i)
-	{
-		printf("-");
-	}
-	printf("\n");
+void cpu_print_everything(CPU const * const cpu, uint16_t first, uint16_t last)
+{
+	cpu_print_regs(cpu);
+	cpu_print_screen(cpu);
+	cpu_print_mem(cpu, first, last);
 }
