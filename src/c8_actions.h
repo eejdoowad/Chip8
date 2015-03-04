@@ -19,12 +19,12 @@ void cpu_loadROM(CPU * const cpu, char const * const game_file); //loads the gam
 
 void cpu_decodeAndExecute(CPU * const cpu); // handles decode and execute cycle by calling appropriate instructions.
 
-void (*c8_instruction_table[16])(CPU * const cpu); // array of pointers to instruction functions
+void (*cpu_instruction_table[16])(CPU * const cpu); // array of pointers to instruction functions
 
-void c8_0xxx_instruction(CPU * const cpu); // handles instructions with high-order nibble 0
+void cpu_0xxx_instruction(CPU * const cpu); // handles instructions with high-order nibble 0
 
-void c8_8xxx_instruction(CPU * const cpu); // handles instructions with high-order nibble 8
+void cpu_8xxx_instruction(CPU * const cpu); // handles instructions with high-order nibble 8
 
-void c8_Exxx_instruction(CPU * const cpu); // handles instructions with high-order nibble E
+void cpu_Exxx_instruction(CPU * const cpu); // handles instructions with high-order nibble E
 
-void c8_Fxxx_instruction(CPU * const cpu); // handles instructions with high-order nibble F
+void cpu_Fxxx_instruction(CPU * const cpu); // handles instructions with high-order nibble F

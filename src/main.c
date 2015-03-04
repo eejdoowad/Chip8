@@ -1,4 +1,6 @@
 #include <stdio.h>
+#include <time.h>
+#include <string.h>
 #include "CPU.h"
 #include "c8_util.h"
 #include "c8_actions.h"
@@ -6,34 +8,76 @@
 
 int main(int argc, char* argv[])
 {
-	printf("\n\n\nCPUr\n\n\n\n");
+	char ROM[256] = "";
 
-	CPU c;
+	if (argc == 1)
+	{
+		printf("No ROM Selected. Exiting\n");
+		return 1;
+	}
+	else if (argc == 2)
+	{
+		strcpy(ROM, "roms/");
+		strcpy(ROM + 5,argv[1]);
+		printf("%s\n", ROM);
+	}
+	else
+	{
+		printf("Too many arguments. There should only be two. Exiting.\n");
+		return 1;
+	}
 
-	cpu_initialize(&c);
-	cpu_loadROM(&c, "roms/BRIX");
+	srand(time(NULL));
+
+	CPU cpu;
+
+	cpu_initialize(&cpu);
+	cpu_loadROM(&cpu, ROM);
 	//cpu_print_everything(&c, 0x200, 0x280);
 
 
-	cpu_print_regs(&c);
+	for (int i = 0; ; ++i)
+	{
+		cpu_emulateCycle(&cpu);
+		cpu_print_screen(&cpu);
+		printf("End of cycle: %d", i);
+		// char c;
+		// while ((c = getchar()) != '\n')
+		// {
+		// 	if (c == 'm')
+		// 	{
+		// 		cpu_print_mem(&cpu, 0x200, 0x280);
+		// 	}
+		// 	else if (c == 'r')
+		// 	{
+		// 		cpu_print_regs(&cpu);
+		// 	}
+		// 	else if (c == 'q')
+		// 	{
+		// 		exit(1);
+		// 	}
+		// }
+		if (i%100 == 0)
+			getchar();
+		
+	}
 
-	c.opcode = 0x1235;
-	c8_i_jumpImmediate(&c);
-	cpu_print_regs(&c);
+
+	cpu_print_regs(&cpu);
+
+	cpu.opcode = 0x1235;
+	cpu_i_jumpImmediate(&cpu);
+	cpu_print_regs(&cpu);
 
 	// Dxyn - DRW Vx, Vy, nibble
 	// Display n-byte sprite starting at memory location I at (Vx, Vy), set VF = collision.
-	c.opcode = 0xD015;
-	c.V[0] = 10;
-	c.V[1] = 10;
-	c.I = 0x55;
-	c8_i_draw(&c);
+	cpu.opcode = 0xD015;
+	cpu.V[0] = 0;
+	cpu.V[1] = 0;
+	cpu.I = 0x50;
+	cpu_i_draw(&cpu);
+	cpu_print_screen(&cpu);
 
-
-	// c.opcode = 0x0005;
-	// c.I = 0x50;
-	// c8_i_draw(&c);
-	cpu_print_screen(&c);
 
 	//cpu_run(&c);
 

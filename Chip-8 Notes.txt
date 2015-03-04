@@ -1,6 +1,6 @@
 Chip-8 Notes
 
-HIGH PRIORITY: Couldn't determine whether to increment SP first of store PC first in c8_i_callSubroutine
+HIGH PRIORITY: Couldn't determine whether to increment SP first of store PC first in cpu_i_callSubroutine
 ARITHMETIC TYPE: Is it unsigned? 1's complement? 2's complement?
 PROGRAM COUNTER: When and where is it updated? When in the Chip8? When in actual processors?
 RANDOM SEED: where do I do it?
