@@ -3,6 +3,7 @@
 #include "instructions.h"
 #include <stdio.h> // printf()
 #include <stdlib.h> // exit()
+#include "input.h"
 
 //* Used for unimplemented instructions
 void cpu_cpuNULL(CPU * const cpu)
@@ -36,7 +37,7 @@ void cpu_i_clearDisplay(CPU * const cpu)
 			cpu->screen[(row * SCR_H) + col] = 0x0;
 		}
 	}
-
+	cpu->draw = 1;
 	cpu->PC += 2;
 }
 
@@ -334,6 +335,7 @@ void cpu_i_draw(CPU * const cpu)
 			}
 		}
 	}
+	cpu->draw = 1;
 	cpu->PC += 2;
 }
 
@@ -342,7 +344,7 @@ void cpu_i_draw(CPU * const cpu)
 // Checks the keyboard, and if the key corresponding to the value of Vx is currently in the down position, PC is increased by 2.
 void cpu_i_skipButtonPressed(CPU * const cpu)
 {
-	cpu->PC += 2;
+	cpu->PC += (cpu->keys[(cpu->opcode & 0x0F00) >> 8]) ? 4 : 2;
 }
 
 // ExA1 - SKNP Vx
@@ -350,7 +352,7 @@ void cpu_i_skipButtonPressed(CPU * const cpu)
 // Checks the keyboard, and if the key corresponding to the value of Vx is currently in the up position, PC is increased by 2.
 void cpu_i_skipNotPressed(CPU * const cpu)
 {
-	cpu->PC += 2;
+	cpu->PC += (cpu->keys[(cpu->opcode & 0x0F00) >> 8]) ? 2 : 4;
 }
 
 // Fx07 - LD Vx, DT
@@ -358,6 +360,7 @@ void cpu_i_skipNotPressed(CPU * const cpu)
 // The value of DT is placed into Vx.
 void cpu_i_loadDelayTimer(CPU * const cpu)
 {
+	cpu->V[(cpu->opcode & 0x0F00) >> 8] = cpu->delay_timer;
 	cpu->PC += 2;
 }
 
@@ -366,6 +369,7 @@ void cpu_i_loadDelayTimer(CPU * const cpu)
 // All execution stops until a key is pressed, then the value of that key is stored in Vx.
 void cpu_i_waitForThenStoreButton(CPU * const cpu)
 {
+	cpu->V[(cpu->opcode & 0x0F00) >> 8] = wait_for_key();
 	cpu->PC += 2;
 }
 

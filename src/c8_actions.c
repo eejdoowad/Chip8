@@ -11,6 +11,7 @@ void cpu_initialize(CPU * const cpu)
 	cpu->opcode = 0x00;
 	cpu->I = 0x00;
 	cpu->SP = 0x0;
+	cpu->draw = 0x0;
 
 	for (int i = 0; i < 16; ++i)
 	{
@@ -90,11 +91,18 @@ void cpu_emulateCycle(CPU * const cpu)
 	// Fetch Opcode
 	cpu->opcode = ((uint16_t)cpu->mem[cpu->PC] << 8) | (cpu->mem[cpu->PC + 1]);
 
-	//* Should decode and execute be coupled into a single function? load next pc at end of execution
-	//* Decode and Execute Opcode
+	// deocode and execute
 	cpu_decodeAndExecute(cpu);
 
-	//* Update timers
+	// Update timers
+	if (cpu->sound_timer > 0)
+	{
+		cpu->sound_timer -= 1;
+	}
+	if (cpu->delay_timer > 0)
+	{
+		cpu->delay_timer -= 1;
+	}
 }
 
 void cpu_loadROM(CPU * const cpu, char const * const game_file) //loads the game into memory

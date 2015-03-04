@@ -18,5 +18,6 @@ typedef struct
 	uint8_t screen[SCR_W * SCR_H];
 	uint8_t delay_timer;
 	uint8_t sound_timer;
-	uint8_t key[16];
+	uint8_t keys[16];
+	uint8_t draw;
 } CPU;

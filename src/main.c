@@ -5,6 +5,7 @@
 #include "c8_util.h"
 #include "c8_actions.h"
 #include "instructions.h"
+#include "input.h"
 
 int main(int argc, char* argv[])
 {
@@ -39,6 +40,17 @@ int main(int argc, char* argv[])
 	for (int i = 0; ; ++i)
 	{
 		cpu_emulateCycle(&cpu);
+
+		if (cpu.draw)
+		{
+			draw_to_screen(&cpu);			
+			cpu.draw = 0;
+		}
+
+		update_keys(&cpu);
+
+
+
 		cpu_print_screen(&cpu);
 		printf("End of cycle: %d", i);
 		// char c;

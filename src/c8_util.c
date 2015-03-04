@@ -6,7 +6,7 @@ void cpu_print_regs(CPU const * const cpu)
 	printf("#     V        Stack    Keys\n");
 	for (int i = 0; i < 16; i++)
 	{
-		printf("%1x     %04x     %04x     %04x\n", i, cpu->V[i], cpu->stack[i], cpu->key[i]);
+		printf("%1x     %04x     %04x     %04x\n", i, cpu->V[i], cpu->stack[i], cpu->keys[i]);
 	}
 }
 
