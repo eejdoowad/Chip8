@@ -7,6 +7,11 @@
 #include "instructions.h"
 #include "input.h"
 
+void temp(char const * const str)
+{
+	printf("%s", str);
+}
+
 int main(int argc, char* argv[])
 {
 	char ROM[256] = "";
@@ -27,6 +32,7 @@ int main(int argc, char* argv[])
 		printf("Too many arguments. There should only be two. Exiting.\n");
 		return 1;
 	}
+	temp(ROM);
 
 	srand(time(NULL));
 

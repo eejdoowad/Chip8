@@ -111,6 +111,7 @@ void cpu_loadROM(CPU * const cpu, char const * const game_file) //loads the game
 	if ((fp = fopen(game_file, "r")) == NULL)
 	{
 		fprintf(stderr, "Opening ROM failed");
+		system("dir");
 		exit(1);
 	}
 
