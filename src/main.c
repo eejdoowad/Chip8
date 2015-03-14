@@ -18,8 +18,8 @@ int main(int argc, char* argv[])
 	}
 	else if (argc == 2)
 	{
-		strcpy(ROM, "roms/");
-		strcpy(ROM + 5,argv[1]);
+		strcpy(ROM, "../roms/");
+		strcpy(ROM + 8,argv[1]);
 		printf("%s\n", ROM);
 	}
 	else

@@ -433,7 +433,7 @@ void cpu_i_storeVRegisters(CPU * const cpu)
 	const int x = (cpu->opcode >> 8) & 0xF;
 	for (int i = 0; i <= x; ++i)
 	{
-		cpu->mem[cpu->I + (2 * i)] = 		cpu->V[i] & 0xFF00;
+		cpu->mem[cpu->I + (2 * i)] = 		cpu->V[i] >> 8;
 		cpu->mem[cpu->I + (2 * i) + 1] =	cpu->V[i] & 0x00FF;
 	}
 	cpu->PC += 2;
