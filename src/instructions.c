@@ -1,9 +1,7 @@
-// instructions.c
-
-#include "instructions.h"
 #include <stdio.h> // printf()
 #include <stdlib.h> // exit()
-#include "input.h"
+#include "instructions.h"
+#include "io.h"
 
 //* Used for unimplemented instructions
 void cpu_cpuNULL(CPU * const cpu)
@@ -369,7 +367,7 @@ void cpu_i_loadDelayTimer(CPU * const cpu)
 // All execution stops until a key is pressed, then the value of that key is stored in Vx.
 void cpu_i_waitForThenStoreButton(CPU * const cpu)
 {
-	cpu->V[(cpu->opcode & 0x0F00) >> 8] = wait_for_key();
+	cpu->V[(cpu->opcode & 0x0F00) >> 8] = io_waitForKey();
 	cpu->PC += 2;
 }
 

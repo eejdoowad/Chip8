@@ -79,16 +79,16 @@
   <ItemGroup>
     <ClCompile Include="..\..\src\c8_actions.c" />
     <ClCompile Include="..\..\src\c8_util.c" />
-    <ClCompile Include="..\..\src\input.c" />
     <ClCompile Include="..\..\src\instructions.c" />
+    <ClCompile Include="..\..\src\io.c" />
     <ClCompile Include="..\..\src\main.c" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\src\c8_actions.h" />
     <ClInclude Include="..\..\src\c8_util.h" />
     <ClInclude Include="..\..\src\CPU.h" />
-    <ClInclude Include="..\..\src\input.h" />
     <ClInclude Include="..\..\src\instructions.h" />
+    <ClInclude Include="..\..\src\io.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
