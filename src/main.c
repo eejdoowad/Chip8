@@ -28,7 +28,8 @@ int main(int argc, char* argv[])
 
 	cpu_loadROM(&cpu, argv[1]);
 
-	for (int cycle = 0; ; ++cycle)
+	int quit = 0;
+	for (int cycle = 0; !quit; ++cycle)
 	{
 		cpu_emulateCycle(&cpu);
 		if (cpu.draw)
@@ -37,24 +38,8 @@ int main(int argc, char* argv[])
 			cpu.draw = 0;
 		}
 
-		io_updateKeys(&cpu);	
+		io_updateKeys(&cpu, &io, &quit);	
 	}
-
-
-	//cpu_print_regs(&cpu);
-
-	//cpu.opcode = 0x1235;
-	//cpu_i_jumpImmediate(&cpu);
-	//cpu_print_regs(&cpu);
-
-	//// Dxyn - DRW Vx, Vy, nibble
-	//// Display n-byte sprite starting at memory location I at (Vx, Vy), set VF = collision.
-	//cpu.opcode = 0xD015;
-	//cpu.V[0] = 0;
-	//cpu.V[1] = 0;
-	//cpu.I = 0x50;
-	//cpu_i_draw(&cpu);
-	//cpu_print_screen(&cpu);
 
 	io_destroyIOModule(&io);
 	return 0;
