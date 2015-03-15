@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <SDL2/SDL.h>
+#include <stdbool.h>
 #include "CPU.h"
 #include "io.h"
 #include "c8_actions.h"
@@ -32,8 +33,7 @@ int main(int argc, char* argv[])
 	unsigned cycleStartTime;
 	unsigned cycleElapsedTime;
 
-	int quit = 0;
-
+	bool quit = false;
 	for (int cycle = 0; !quit; ++cycle)
 	{
 		cycleStartTime = SDL_GetTicks();

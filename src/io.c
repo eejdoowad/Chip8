@@ -51,7 +51,7 @@ uint8_t io_waitForKey(void)
 
 }
 
-void io_updateKeys(CPU * const cpu, IO_Module * const io, int * const quit)
+void io_updateKeys(CPU * const cpu, IO_Module * const io, bool * const quit)
 {
 
 	while (SDL_PollEvent(io->e))
@@ -59,7 +59,7 @@ void io_updateKeys(CPU * const cpu, IO_Module * const io, int * const quit)
 		switch (io->e->type)
 		{
 			case SDL_QUIT:
-				*quit = 1;
+				*quit = true;
 				break;
 			case SDL_WINDOWEVENT:
 				break;

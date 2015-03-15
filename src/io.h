@@ -2,6 +2,7 @@
 
 #include <SDL2/SDL.h>
 #include <stdint.h>
+#include <stdbool.h>
 #include "CPU.h"
 
 typedef struct
@@ -19,6 +20,6 @@ void io_updateScreen(IO_Module const * const io, uint8_t * screen);
 
 uint8_t io_waitForKey(void);
 
-void io_updateKeys(CPU * const cpu, IO_Module * const io, int * const quit);
+void io_updateKeys(CPU * const cpu, IO_Module * const io, bool * const quit);
 
 void io_updateWindowTitle(char const * const ROM, IO_Module * const io);

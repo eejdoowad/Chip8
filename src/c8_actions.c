@@ -7,11 +7,11 @@
 static void cpu_loadFontSet(CPU * const cpu);
 static void cpu_zeroMemory(CPU * const cpu);
 static void cpu_clearDisplay(CPU * const cpu);
-static void (*cpu_instruction_table[16])(CPU * const cpu);
-static void cpu_0xxx_instruction(CPU * const cpu);
-static void cpu_8xxx_instruction(CPU * const cpu);
-static void cpu_Exxx_instruction(CPU * const cpu);
-static void cpu_Fxxx_instruction(CPU * const cpu);
+static void (*instruction_table[16])(CPU * const cpu);
+static void i_0xxx(CPU * const cpu);
+static void i_8xxx(CPU * const cpu);
+static void i_Exxx(CPU * const cpu);
+static void i_Fxxx(CPU * const cpu);
 
 // initializes registers and memory
 void cpu_initialize(CPU * const cpu)
@@ -21,7 +21,6 @@ void cpu_initialize(CPU * const cpu)
 	cpu->opcode = 0x00;
 	cpu->I = 0x00;
 	cpu->SP = 0x0;
-	cpu->draw = 0x0;
 
 	for (int i = 0; i < 16; ++i)
 	{
@@ -33,13 +32,16 @@ void cpu_initialize(CPU * const cpu)
 	cpu_clearDisplay(cpu);
 	cpu_loadFontSet(cpu);
 
-	srand((unsigned)time(NULL));
+	cpu->delay_timer = 0;
+	cpu->sound_timer = 0;
 
-	// Reset timers
-	// TODO
+	cpu->draw = 0x0;
+
+	srand((unsigned)time(NULL));
 }
 
-void cpu_loadFontSet(CPU * const cpu) // loads font set into first 80 memory addresses
+// loads font set into first 80 memory addresses
+void cpu_loadFontSet(CPU * const cpu) 
 {
 	uint8_t CPU_fontset[80] =
 	{ 
@@ -75,8 +77,8 @@ void cpu_zeroMemory(CPU * const cpu) // initializes all of memory to zero
 	}
 }
 
-
-void cpu_clearDisplay(CPU * const cpu) // clears the display
+// clears the display
+void cpu_clearDisplay(CPU * const cpu)
 {
 	// uint8_t	screen[SCR_W * SCR_H];
 	for (int i = 0; i < SCR_H; ++i)
@@ -96,7 +98,7 @@ void cpu_emulateCycle(CPU * const cpu)
 	cpu->opcode = ((uint16_t)cpu->mem[cpu->PC] << 8) | (cpu->mem[cpu->PC + 1]);
 
 	// deocode and execute
-	cpu_decodeAndExecute(cpu);
+	instruction_table[(cpu->opcode & 0xF000) >> 12](cpu);
 
 	// Update timers
 	if (cpu->sound_timer > 0)
@@ -109,13 +111,13 @@ void cpu_emulateCycle(CPU * const cpu)
 	}
 }
 
-void cpu_loadROM(CPU * const cpu, char const * const game_file) //loads the game into memory
+//loads the game into memory
+void cpu_loadROM(CPU * const cpu, char const * const game_file) 
 {
 	FILE * fp;
 	if ((fp = fopen(game_file, "rb")) == NULL)
 	{
 		fprintf(stderr, "Opening ROM  \"%s\" failed\n", game_file);
-		system("cd");
 		fflush(stderr);
 		exit(1);
 	}
@@ -126,127 +128,124 @@ void cpu_loadROM(CPU * const cpu, char const * const game_file) //loads the game
 	fclose(fp);
 }
 
-void cpu_decodeAndExecute(CPU * const cpu)
+// array of function pointer where the functions correspond to the
+// instruction to be executed given the high order opcode nibble
+void (*instruction_table[16])(CPU * const cpu) = 
 {
-	cpu_instruction_table[(cpu->opcode & 0xF000) >> 12](cpu);
-}
-
-void (*cpu_instruction_table[16])(CPU * const cpu) = 
-{
-	cpu_0xxx_instruction, 			// 0
-	cpu_i_jumpImmediate, 			// 1
-	cpu_i_callSubroutine, 			// 2
-	cpu_i_skipEqualImmediate, 		// 3
-	cpu_i_skipNotEqualImmediate,	// 4
-	cpu_i_skipEqualRegister, 		// 5
-	cpu_i_loadImmediate, 			// 6
-	cpu_i_addImmediate, 			// 7 
-	cpu_8xxx_instruction, 			// 8
-	cpu_i_skipNotEqualRegister, 	// 9
-	cpu_i_loadToI, 					// A
-	cpu_i_jumpV0Offset, 			// B
-	cpu_i_loadRandom, 				// C
-	cpu_i_draw, 					// D
-	cpu_Exxx_instruction, 			// E
-	cpu_Fxxx_instruction 			// F
+	i_0xxx,		// 0
+	i_1nnn, 	// 1
+	i_2nnn, 	// 2
+	i_3xkk, 	// 3
+	i_4xkk,		// 4
+	i_5xy0, 	// 5
+	i_6xkk, 	// 6
+	i_7xkk, 	// 7 
+	i_8xxx, 	// 8
+	i_9xy0, 	// 9
+	i_Annn, 	// A
+	i_Bnnn, 	// B
+	i_Cxkk, 	// C
+	i_Dxyn, 	// D
+	i_Exxx, 	// E
+	i_Fxxx 		// F
 };
 
-void cpu_8xxx_instruction(CPU * const cpu)
+// handles instructions with high-order nibble 8
+void i_8xxx(CPU * const cpu)
 {
 	switch (cpu->opcode & 0x000F)
 	{
 		case 0:
-			cpu_i_loadRegister(cpu);
+			i_8xy0(cpu);
 			break;
 		case 1:
-			cpu_i_OR(cpu);
+			i_8xy1(cpu);
 			break;
 		case 2:
-			cpu_i_AND(cpu);
+			i_8xy1(cpu);
 			break;
 		case 3:
-			cpu_i_XOR(cpu);
+			i_8xy3(cpu);
 			break;
 		case 4:
-			cpu_i_addRegister(cpu);
+			i_8xy4(cpu);
 			break;
 		case 5:
-			cpu_i_subtractRegister(cpu);
+			i_8xy5(cpu);
 			break;
 		case 6:
-			cpu_i_shiftRight(cpu);
+			i_8xy6(cpu);
 			break;
 		case 7:
-			cpu_i_subtractRegisterSwitched(cpu);
+			i_8xy7(cpu);
 			break;
 		case 0xE:
-			cpu_i_shiftLeft(cpu);
+			i_8xyE(cpu);
 			break;
-		default:
-			fprintf(stderr, "Instruction fell through Exxx swith table");
 	}
 }
 
-void cpu_0xxx_instruction(CPU * const cpu) // handles instructions with high-order nibble 0
+// handles instructions with high-order nibble 0
+void i_0xxx(CPU * const cpu)
 {
 	if (cpu->opcode == 0x00E0)
 	{
-		cpu_i_clearDisplay(cpu);
+		i_00E0(cpu);
 	}
 	else if (cpu->opcode == 0x00EE)
 	{
-		cpu_i_subroutineReturn(cpu);
+		i_00EE(cpu);
 	}
 	else
 	{
-		cpu_i_jumpRoutine(cpu);
+		i_0nnn(cpu);
 	}
 }
 
-void cpu_Exxx_instruction(CPU * const cpu) // handles instructions with high-order nibble E
+// handles instructions with high-order nibble E
+void i_Exxx(CPU * const cpu)
 {
 	if ((cpu->opcode & 0xF0FF) == 0xE09E)
 	{
-		cpu_i_skipButtonPressed(cpu);
+		i_Ex9E(cpu);
 	}
 	else
 	{
-		cpu_i_skipNotPressed(cpu);
+		i_ExA1(cpu);
 	}
 }
 
-void cpu_Fxxx_instruction(CPU * const cpu) // handles instructions with high-order nibble F
+// handles instructions with high-order nibble F
+void i_Fxxx(CPU * const cpu)
 {
 	switch (cpu->opcode & 0x00FF)
 	{
 		case 0x07 :
-			cpu_i_loadDelayTimer(cpu); 
+			i_Fx07(cpu); 
 			break;
 		case 0x0A :
-			cpu_i_waitForThenStoreButton(cpu);
+			i_Fx0A(cpu);
 			break;
 		case 0x15 :
-			cpu_i_loadToDelayTimer(cpu);
+			i_Fx15(cpu);
 			break;
 		case 0x18 :
-			cpu_i_loadToSoundTimer(cpu);
+			i_Fx18(cpu);
 			break;
 		case 0x1E :
-			cpu_i_addToI(cpu);
+			i_Fx1E(cpu);
 			break;
 		case 0x29 :
-			cpu_i_loadFontToI(cpu);
+			i_Fx29(cpu);
 			break;
 		case 0x33 :
-			cpu_i_loadBCD(cpu);
+			i_Fx33(cpu);
 			break;
 		case 0x55 :
-			cpu_i_storeVRegisters(cpu);
+			i_Fx55(cpu);
 			break;
 		case 0x65 :
-			cpu_i_loadVRegisters(cpu);
+			i_Fx65(cpu);
 			break;
-		default :
-			fprintf(stderr, "Instruction fell through Fxxx swith table");
 	}
 }
