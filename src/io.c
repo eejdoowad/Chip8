@@ -1,4 +1,6 @@
 #include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
 #include "io.h"
 #include "CPU.h"
 
@@ -11,6 +13,11 @@ void io_initIOModule(IO_Module * const io)
 	SDL_RenderSetLogicalSize(io->renderer, 64, 32);
 
 	io->e = (SDL_Event *)malloc(sizeof(SDL_Event));
+
+	for (int i = 0; i < 512; ++i)
+	{
+		io->title[i] = '\0';
+	}
 }
 
 void io_destroyIOModule(IO_Module * const io)
@@ -58,4 +65,10 @@ void io_updateKeys(CPU * const cpu, IO_Module * const io, int * const quit)
 				break;
 		}
 	}
+}
+
+void io_updateWindowTitle(char const * const ROM, IO_Module * const io)
+{
+	sprintf_s(io->title, sizeof(io->title), "Chip 8 Emulator: Running %s at %d FPS", ROM, FPS);
+	SDL_SetWindowTitle(io->window, io->title);
 }

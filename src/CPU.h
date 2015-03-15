@@ -5,6 +5,8 @@
 #define START_ADDRESS 0x200
 #define SCR_W 64
 #define SCR_H 32
+#define FPS 60
+#define TICKS_PER_FRAME (1000/FPS)
 
 typedef struct
 {

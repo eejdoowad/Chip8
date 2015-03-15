@@ -28,9 +28,16 @@ int main(int argc, char* argv[])
 
 	cpu_loadROM(&cpu, argv[1]);
 
+	unsigned const startTime = SDL_GetTicks();
+	unsigned cycleStartTime;
+	unsigned cycleElapsedTime;
+
 	int quit = 0;
+
 	for (int cycle = 0; !quit; ++cycle)
 	{
+		cycleStartTime = SDL_GetTicks();
+
 		cpu_emulateCycle(&cpu);
 		if (cpu.draw)
 		{
@@ -38,7 +45,15 @@ int main(int argc, char* argv[])
 			cpu.draw = 0;
 		}
 
-		io_updateKeys(&cpu, &io, &quit);	
+		io_updateKeys(&cpu, &io, &quit);
+
+		cycleElapsedTime = SDL_GetTicks() - cycleStartTime;
+		if (cycleElapsedTime < TICKS_PER_FRAME)
+		{
+			SDL_Delay(TICKS_PER_FRAME - cycleElapsedTime);
+		}
+
+		io_updateWindowTitle(argv[1], &io);
 	}
 
 	io_destroyIOModule(&io);

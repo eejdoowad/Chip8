@@ -315,21 +315,31 @@ void cpu_i_draw(CPU * const cpu)
 	uint16_t VF_status = 0;
 
 	uint8_t height = cpu->opcode & 0x000F;
-	uint8_t x = (uint8_t) cpu->V[(cpu->opcode & 0x0F00) >> 8];
-	uint8_t y = (uint8_t) cpu->V[(cpu->opcode & 0x00F0) >> 4];
+	uint16_t x = cpu->V[(cpu->opcode & 0x0F00) >> 8];
+	uint16_t y = cpu->V[(cpu->opcode & 0x00F0) >> 4];
 
 	for (uint8_t row = 0; row < height; ++row)
 	{
 		uint8_t byte_to_write = cpu->mem[cpu->I + row];
 		for (uint8_t bit = 0; bit < 8; ++bit)
 		{
-			if ((byte_to_write & (0x80 >> bit)) != 0x00)
+			if (byte_to_write & (0x80 >> bit))
 			{
-				if (cpu->screen[((y + row) * SCR_W) + (x + bit)] == 0x01)
+				size_t pixel_index = ((y  + row) * SCR_W) + (x + bit);
+				if (pixel_index < SCR_W * SCR_H)
 				{
-					cpu->V[0xF] = 1;
+					if (cpu->screen[pixel_index] == 0x01)
+					{
+						cpu->V[0xF] = 1;
+					}
+					cpu->screen[pixel_index] ^= 0x01;
 				}
-				cpu->screen[((y + row) * SCR_W) + (x + bit)] ^= 0x01;
+				else
+				{
+					fprintf(stderr, "Pixel Index %d exceeds display boundary\n", pixel_index);
+					fflush(stderr);
+				}
+				
 			}
 		}
 	}
