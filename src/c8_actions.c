@@ -110,13 +110,15 @@ void cpu_loadROM(CPU * const cpu, char const * const game_file) //loads the game
 	FILE * fp;
 	if ((fp = fopen(game_file, "r")) == NULL)
 	{
-		fprintf(stderr, "Opening ROM failed");
-		system("dir");
+		fprintf(stderr, "Opening ROM  \"%s\" failed\n", game_file);
+		system("cd");
+		fflush(stderr);
 		exit(1);
 	}
 
 	int numread = fread(cpu->mem + START_ADDRESS, 1, MEM_BYTES - START_ADDRESS, fp);
 	printf("\nBytes read from ROM: %d\n", numread);
+	fflush(stdout);
 	fclose(fp);
 }
 

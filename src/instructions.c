@@ -317,8 +317,8 @@ void cpu_i_draw(CPU * const cpu)
 	uint16_t VF_status = 0;
 
 	uint8_t height = cpu->opcode & 0x000F;
-	uint8_t x = cpu->V[(cpu->opcode & 0x0F00) >> 8];
-	uint8_t y = cpu->V[(cpu->opcode & 0x00F0) >> 4];
+	uint8_t x = (uint8_t) cpu->V[(cpu->opcode & 0x0F00) >> 8];
+	uint8_t y = (uint8_t) cpu->V[(cpu->opcode & 0x00F0) >> 4];
 
 	for (uint8_t row = 0; row < height; ++row)
 	{
@@ -378,7 +378,7 @@ void cpu_i_waitForThenStoreButton(CPU * const cpu)
 // DT is set equal to the value of Vx.
 void cpu_i_loadToDelayTimer(CPU * const cpu)
 {
-	cpu->delay_timer = cpu->V[(cpu->opcode & 0x0F00) >> 8];
+	cpu->delay_timer = (uint8_t) cpu->V[(cpu->opcode & 0x0F00) >> 8];
 	cpu->PC += 2;
 }
 
@@ -387,7 +387,7 @@ void cpu_i_loadToDelayTimer(CPU * const cpu)
 // ST is set equal to the value of Vx.
 void cpu_i_loadToSoundTimer(CPU * const cpu)
 {
-	cpu->sound_timer = cpu->V[(cpu->opcode & 0x0F00) >> 8];
+	cpu->sound_timer = (uint8_t) cpu->V[(cpu->opcode & 0x0F00) >> 8];
 	cpu->PC += 2;
 }
 

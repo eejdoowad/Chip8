@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <time.h>
 #include <string.h>
+#include <SDL/SDL.h>
 #include "CPU.h"
 #include "c8_util.h"
 #include "c8_actions.h"
@@ -14,6 +15,24 @@ void temp(char const * const str)
 
 int main(int argc, char* argv[])
 {
+	// SDL
+	const int WIDTH = 640;
+	const int HEIGHT = 320;
+
+	SDL_Init(SDL_INIT_VIDEO);
+
+
+	SDL_Window * window;
+	SDL_Renderer * renderer;
+	SDL_CreateWindowAndRenderer(WIDTH, HEIGHT, SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE, &window, &renderer);
+	
+	SDL_Rect rect;
+	rect.h = 64;
+	rect.w = 32;
+	rect.x = 0;
+	rect.y = 0;
+	// END SDL
+
 	char ROM[256] = "";
 
 	if (argc == 1)
@@ -23,8 +42,7 @@ int main(int argc, char* argv[])
 	}
 	else if (argc == 2)
 	{
-		strcpy(ROM, "../roms/");
-		strcpy(ROM + 8,argv[1]);
+		strcpy(ROM, argv[1]);
 		printf("%s\n", ROM);
 	}
 	else
@@ -34,7 +52,7 @@ int main(int argc, char* argv[])
 	}
 	temp(ROM);
 
-	srand(time(NULL));
+	srand((unsigned) time(NULL));
 
 	CPU cpu;
 
@@ -51,32 +69,32 @@ int main(int argc, char* argv[])
 		{
 			draw_to_screen(&cpu);			
 			cpu.draw = 0;
+			// SDL //
+			SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
+			SDL_RenderClear(renderer);
+			SDL_SetRenderDrawColor(renderer, 0, 255, 0, 255);
+			for (int i = 0; i < 64; ++i)
+			{
+				rect.y = i * 10;
+				for (int j = 0; j < 32; ++j)
+				{
+					rect.x = j * 10;
+					if (cpu.screen[(i * SCR_W) + j])
+					{
+						SDL_RenderFillRect(renderer, &rect);
+					}
+				}
+			}
+			SDL_RenderPresent(renderer);
+
+			SDL_Delay(5);
+			// END SDL //
+
+
 		}
 
 		update_keys(&cpu);
-
-
-
-		cpu_print_screen(&cpu);
-		printf("End of cycle: %d", i);
-		// char c;
-		// while ((c = getchar()) != '\n')
-		// {
-		// 	if (c == 'm')
-		// 	{
-		// 		cpu_print_mem(&cpu, 0x200, 0x280);
-		// 	}
-		// 	else if (c == 'r')
-		// 	{
-		// 		cpu_print_regs(&cpu);
-		// 	}
-		// 	else if (c == 'q')
-		// 	{
-		// 		exit(1);
-		// 	}
-		// }
-		if (i%100 == 0)
-			getchar();
+		
 		
 	}
 
@@ -97,7 +115,10 @@ int main(int argc, char* argv[])
 	cpu_print_screen(&cpu);
 
 
-	//cpu_run(&c);
+
+	SDL_DestroyRenderer(renderer);
+	SDL_DestroyWindow(window);
+	SDL_Quit();
 
 	return 0;
 }
