@@ -108,7 +108,7 @@ void cpu_emulateCycle(CPU * const cpu)
 void cpu_loadROM(CPU * const cpu, char const * const game_file) //loads the game into memory
 {
 	FILE * fp;
-	if ((fp = fopen(game_file, "r")) == NULL)
+	if ((fp = fopen(game_file, "rb")) == NULL)
 	{
 		fprintf(stderr, "Opening ROM  \"%s\" failed\n", game_file);
 		system("cd");
