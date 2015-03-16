@@ -102,12 +102,7 @@ void i_3xkk(CPU * const cpu)
 	const uint8_t x = op_x(cpu->opcode);
 	const uint8_t kk = op_kk(cpu->opcode);
 
-	uint16_t PC_increment = 2;
-	if (cpu->V[x] == kk)
-	{
-		PC_increment = 4;
-	}
-	cpu->PC += PC_increment;
+	cpu->PC += ((cpu->V[x] == kk) ? 4 : 2);
 }
 
 // 4xkk - SNE Vx, byte
@@ -118,12 +113,7 @@ void i_4xkk(CPU * const cpu)
 	const uint8_t x = op_x(cpu->opcode);
 	const uint8_t kk = op_kk(cpu->opcode);
 
-	uint16_t PC_increment = 2;
-	if (cpu->V[x] != kk)
-	{
-		PC_increment = 4;
-	}
-	cpu->PC += PC_increment;
+	cpu->PC += ((cpu->V[x] != kk) ? 4 : 2);
 }
 
 // 5xy0 - SE Vx, Vy
@@ -134,12 +124,7 @@ void i_5xy0(CPU * const cpu)
 	const uint8_t x = op_x(cpu->opcode);
 	const uint8_t y = op_y(cpu->opcode);
 
-	uint16_t PC_increment = 2;
-	if (cpu->V[x] == cpu->V[y])
-	{
-		PC_increment = 4;
-	}
-	cpu->PC += PC_increment;
+	cpu->PC += ((cpu->V[x] == cpu->V[y]) ? 4 : 2);
 }
 
 // 6xkk - LD Vx, byte
@@ -346,15 +331,17 @@ void i_Dxyn(CPU * const cpu)
 	const uint16_t Vx = cpu->V[x];
 	const uint16_t Vy = cpu->V[y];
 
-	for (uint8_t row = 0; row < n; ++row)
+	for (uint8_t sprite_row = 0; sprite_row < n; ++sprite_row)
 	{
-		uint8_t byte_to_write = cpu->mem[cpu->I + row];
+		uint8_t byte_to_write = cpu->mem[cpu->I + sprite_row];
 
 		for (uint8_t bit = 0; bit < 8; ++bit)
 		{
 			if (byte_to_write & (0x80 >> bit))
 			{
-				size_t pixel_index = ((Vy + row) * SCR_W) + (Vx + bit);
+				const uint8_t x_coordinate = (Vx + bit) % SCR_W;
+				const uint8_t y_coordinate = (Vy + sprite_row) % SCR_H;
+				const uint16_t pixel_index = ((uint16_t) y_coordinate * SCR_W) + x_coordinate;
 
 				if (pixel_index < SCR_W * SCR_H)
 				{
@@ -504,7 +491,7 @@ void i_Fx65(CPU * const cpu)
 
 	for (int i = 0; i <= x; ++i)
 	{
-		cpu->V[i] = ((uint16_t) (cpu->mem[cpu->I + (2 * i)] << 8)) | cpu->mem[cpu->I + (2 * i) + 1];
+		cpu->V[i] = cpu->mem[cpu->I + i];
 	}
 	cpu->PC += 2;
 }
