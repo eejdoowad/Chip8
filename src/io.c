@@ -74,9 +74,9 @@ void io_updateKeys(CPU * const cpu, IO_Module * const io, bool * const quit)
 void io_updateWindowTitle(char const * const ROM, IO_Module * const io)
 {
 #ifdef _MSC_VER
-	sprintf_s(io->title, sizeof(io->title), "Chip 8 Emulator: Running %s at %d FPS", ROM, FPS);
+	sprintf_s(io->title, sizeof(io->title), "Chip 8 Emulator: Running %s at %f FPS", ROM, FPS);
 #else
-	snprintf(io->title, sizeof(io->title), "Chip 8 Emulator: Running %s at %d FPS", ROM, FPS);
+	snprintf(io->title, sizeof(io->title), "Chip 8 Emulator: Running %s at %f FPS", ROM, FPS);
 #endif
 
 	SDL_SetWindowTitle(io->window, io->title);
