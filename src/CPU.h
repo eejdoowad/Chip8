@@ -3,7 +3,9 @@
 #include <stdint.h>
 
 #define MEM_BYTES 4096
-#define START_ADDRESS 0x200
+#define PROGRAM_START_ADDRESS 0x200
+#define FONTSET_START_ADDRESS 0x50
+#define BYTES_PER_LETTER 5
 #define SCR_W 64
 #define SCR_H 32
 #define FPS 60

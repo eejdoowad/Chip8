@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <time.h>
 #include "c8_actions.h"
 #include "c8_util.h"
@@ -7,7 +8,6 @@
 
 static void cpu_loadFontSet(CPU * const cpu);
 static void cpu_zeroMemory(CPU * const cpu);
-static void cpu_clearDisplay(CPU * const cpu);
 static void (*instruction_table[16])(CPU * const cpu);
 static void i_0xxx(CPU * const cpu);
 static void i_8xxx(CPU * const cpu);
@@ -18,19 +18,16 @@ static void i_Fxxx(CPU * const cpu);
 void cpu_initialize(CPU * const cpu)
 {
 	// Reset Registers
-	cpu->PC = START_ADDRESS;
+	cpu->PC = PROGRAM_START_ADDRESS;
 	cpu->opcode = 0x00;
 	cpu->I = 0x00;
 	cpu->SP = 0x0;
 
-	for (int i = 0; i < 16; ++i)
-	{
-		cpu->stack[i] = 0x00;
-		cpu->V[i] = 0x00;
-	}
+	memset(cpu->stack, 0, sizeof(cpu->stack));
+	memset(cpu->V, 0, sizeof(cpu->V));
 
 	cpu_zeroMemory(cpu);
-	cpu_clearDisplay(cpu);
+	memset(cpu->screen, 0, sizeof(cpu->screen));
 	cpu_loadFontSet(cpu);
 
 	cpu->delay_timer = 0;
@@ -44,7 +41,7 @@ void cpu_initialize(CPU * const cpu)
 // loads font set into first 80 memory addresses
 void cpu_loadFontSet(CPU * const cpu) 
 {
-	uint8_t CPU_fontset[80] =
+	static const uint8_t CPU_fontset[80] =
 	{ 
 	  0xF0, 0x90, 0x90, 0x90, 0xF0, // 0
 	  0x20, 0x60, 0x20, 0x20, 0x70, // 1
@@ -64,10 +61,7 @@ void cpu_loadFontSet(CPU * const cpu)
 	  0xF0, 0x80, 0xF0, 0x80, 0x80  // F
 	};
 
-	for (int i = 0; i < 80; ++i)
-	{
-		cpu->mem[0x50 + i] = CPU_fontset[i];
-	}
+	memcpy(cpu->mem + FONTSET_START_ADDRESS, CPU_fontset, sizeof(CPU_fontset));
 }
 
 void cpu_zeroMemory(CPU * const cpu) // initializes all of memory to zero
@@ -78,19 +72,6 @@ void cpu_zeroMemory(CPU * const cpu) // initializes all of memory to zero
 	}
 }
 
-// clears the display
-void cpu_clearDisplay(CPU * const cpu)
-{
-	// uint8_t	screen[SCR_W * SCR_H];
-	for (int i = 0; i < SCR_H; ++i)
-	{
-		for (int j = 0; j < SCR_W; ++j)
-		{
-			cpu->screen[(i * SCR_W) + j] = 0;
-		}
-	}
-
-}
 
 // performs fetch, decode, execute, and timer update
 void cpu_emulateCycle(CPU * const cpu)
@@ -127,7 +108,7 @@ void cpu_loadROM(CPU * const cpu, char const * const game_file)
 		exit(1);
 	}
 
-	int numread = fread(cpu->mem + START_ADDRESS, 1, MEM_BYTES - START_ADDRESS, fp);
+	int numread = fread(cpu->mem + PROGRAM_START_ADDRESS, 1, MEM_BYTES - PROGRAM_START_ADDRESS, fp);
 	printf("\nBytes read from ROM: %d\n", numread);
 	fflush(stdout);
 	fclose(fp);

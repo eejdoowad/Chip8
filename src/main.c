@@ -4,6 +4,7 @@
 #include "CPU.h"
 #include "io.h"
 #include "c8_actions.h"
+#include "c8_util.h"
 #include "instructions.h"
 
 int main(int argc, char* argv[])

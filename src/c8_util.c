@@ -1,4 +1,6 @@
+#include <string.h>
 #include "c8_util.h"
+
 
 void cpu_print_regs(CPU const * const cpu)
 {
@@ -169,8 +171,8 @@ void generateAssemblyFile(char const * const binfile)
 		exit(1);
 	}
 
-	uint8_t ROM[MEM_BYTES - START_ADDRESS];
-	int numread = fread(ROM, 1, MEM_BYTES - START_ADDRESS, binfp);
+	uint8_t ROM[MEM_BYTES - PROGRAM_START_ADDRESS];
+	int numread = fread(ROM, 1, MEM_BYTES - PROGRAM_START_ADDRESS, binfp);
 	printf("\nBytes read from ROM file: %d\n", numread);
 	fflush(stdout);
 
@@ -179,7 +181,7 @@ void generateAssemblyFile(char const * const binfile)
 	{
 		uint16_t opcode = ((((uint16_t) ROM[i]) << 8) | ROM[i+1]);
 		assemble(opcode, assembly);
-		fprintf(asmfp, "%4d:   0x%03X:  0x%04X      %s\n", i / 2, START_ADDRESS + i, opcode, assembly);
+		fprintf(asmfp, "%4d:   0x%03X:  0x%04X      %s\n", i / 2, PROGRAM_START_ADDRESS + i, opcode, assembly);
 	}
 
 	fclose(binfp);
@@ -314,22 +316,22 @@ void i_Fxxx(const uint16_t opcode, char * const assembly)
 #define writeString snprintf
 #endif
 
-uint16_t op_nnn(const uint16_t opcode)
+static uint16_t op_nnn(const uint16_t opcode)
 {
 	return opcode & 0x0FFF;
 }
 
-uint8_t op_x(const uint16_t opcode)
+static uint8_t op_x(const uint16_t opcode)
 {
 	return (opcode & 0x0F00) >> 8;
 }
 
-uint8_t op_y(const uint16_t opcode)
+static uint8_t op_y(const uint16_t opcode)
 {
 	return (opcode & 0x00F0) >> 4;
 }
 
-uint8_t op_kk(const uint16_t opcode)
+static uint8_t op_kk(const uint16_t opcode)
 {
 	return opcode & 0x00FF;
 }

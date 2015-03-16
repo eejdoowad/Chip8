@@ -49,6 +49,11 @@ void io_updateScreen(IO_Module const * const io, uint8_t * screen)
 uint8_t io_waitForKey(void)
 {
 
+	// S* TODO
+	printf("Waiting for Key: ");
+	int key;
+	scanf("%d", &key);
+	return key;
 }
 
 void io_updateKeys(CPU * const cpu, IO_Module * const io, bool * const quit)

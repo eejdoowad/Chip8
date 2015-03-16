@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include "instructions.h"
 #include "io.h"
 
@@ -12,6 +13,25 @@
 // kk or byte - An 8-bit value, the lowest 8 bits of the instruction
 /////////////////////////////////////////////////////////////////////////
 
+static uint16_t op_nnn(const uint16_t opcode)
+{
+	return opcode & 0x0FFF;
+}
+
+static uint8_t op_x(const uint16_t opcode)
+{
+	return (opcode & 0x0F00) >> 8;
+}
+
+static uint8_t op_y(const uint16_t opcode)
+{
+	return (opcode & 0x00F0) >> 4;
+}
+
+static uint8_t op_kk(const uint16_t opcode)
+{
+	return opcode & 0x00FF;
+}
 
 // do nothing instruction
 void i_null(CPU * const cpu)
@@ -24,20 +44,16 @@ void i_null(CPU * const cpu)
 //* This instruction is only used on the old computers on which Chip-8 was originally implemented. It is ignored by modern interpreters.
 void i_0nnn(CPU * const cpu)
 {
-	cpu->PC = cpu->opcode & 0x0FFF;
+	const uint16_t nnn = op_nnn(cpu->opcode);
+
+	cpu->PC = nnn;
 }
 
 // 00E0 - CLS
 // Clear the display.
 void i_00E0(CPU * const cpu)
 {
-	for (int row = 0; row < SCR_H; ++row)
-	{
-		for (int col = 0; col < SCR_W; ++col)
-		{
-			cpu->screen[(row * SCR_H) + col] = 0x0;
-		}
-	}
+	memset(cpu->screen, 0, sizeof(cpu->screen));
 	cpu->draw = 1;
 	cpu->PC += 2;
 }
@@ -46,15 +62,12 @@ void i_00E0(CPU * const cpu)
 // 00EE - RET
 // Return from a subroutine.
 // The interpreter sets the program counter to the address at the top of the stack, then subtracts 1 from the stack pointer.
+// My note: Add 2 to PC to prevent infinite CALL-RET loop
 void i_00EE(CPU * const cpu)
 {
 	cpu->PC = cpu->stack[cpu->SP];
-	if (cpu->SP == 0)
-	{
-		fprintf(stderr, "Stack Pointer zero. Cannot subtract from SP in cpu_i_subroutineReturn."); //* confirm
-		exit(1);
-	}
 	cpu->SP -= 1;
+	cpu->PC += 2;
 }
 
 
@@ -63,7 +76,9 @@ void i_00EE(CPU * const cpu)
 // The interpreter sets the program counter to nnn.
 void i_1nnn(CPU * const cpu)
 {
-	cpu->PC = cpu->opcode & 0x0FFF;
+	const uint16_t nnn = op_nnn(cpu->opcode);
+
+	cpu->PC = nnn;
 }
 
 
@@ -72,9 +87,11 @@ void i_1nnn(CPU * const cpu)
 // The interpreter increments the stack pointer, then puts the current PC on the top of the stack. The PC is then set to nnn.
 void i_2nnn(CPU * const cpu)
 {
+	const uint16_t nnn = op_nnn(cpu->opcode);
+
 	cpu->SP += 1;
-	cpu->stack[cpu->SP] = cpu->PC + 2; // RETURN TO INSTRUCTION AFTER CALL, OTHERWISE LOOPS SAME SUBROUTINE FOREVER
-	cpu->PC = cpu->opcode & 0x0FFF;
+	cpu->stack[cpu->SP] = cpu->PC;
+	cpu->PC = nnn;
 }
 
 // 3xkk - SE Vx, byte
@@ -82,8 +99,11 @@ void i_2nnn(CPU * const cpu)
 // The interpreter compares register Vx to kk, and if they are equal, increments the program counter by 2.
 void i_3xkk(CPU * const cpu)
 {
+	const uint8_t x = op_x(cpu->opcode);
+	const uint8_t kk = op_kk(cpu->opcode);
+
 	uint16_t PC_increment = 2;
-	if (cpu->V[(cpu->opcode & 0x0F00) >> 8] == (cpu->opcode & 0x00FF))
+	if (cpu->V[x] == kk)
 	{
 		PC_increment = 4;
 	}
@@ -95,8 +115,11 @@ void i_3xkk(CPU * const cpu)
 // The interpreter compares register Vx to kk, and if they are not equal, increments the program counter by 2.
 void i_4xkk(CPU * const cpu)
 {
+	const uint8_t x = op_x(cpu->opcode);
+	const uint8_t kk = op_kk(cpu->opcode);
+
 	uint16_t PC_increment = 2;
-	if (cpu->V[(cpu->opcode & 0x0F00) >> 8] != (cpu->opcode & 0x00FF))
+	if (cpu->V[x] != kk)
 	{
 		PC_increment = 4;
 	}
@@ -108,8 +131,11 @@ void i_4xkk(CPU * const cpu)
 // The interpreter compares register Vx to register Vy, and if they are equal, increments the program counter by 2.
 void i_5xy0(CPU * const cpu)
 {
+	const uint8_t x = op_x(cpu->opcode);
+	const uint8_t y = op_y(cpu->opcode);
+
 	uint16_t PC_increment = 2;
-	if (cpu->V[(cpu->opcode & 0x0F00) >> 8] == cpu->V[(cpu->opcode & 0x00F0) >> 4])
+	if (cpu->V[x] == cpu->V[y])
 	{
 		PC_increment = 4;
 	}
@@ -121,7 +147,10 @@ void i_5xy0(CPU * const cpu)
 // The interpreter puts the value kk into register Vx.
 void i_6xkk(CPU * const cpu)
 {
-	cpu->V[(cpu->opcode & 0x0F00) >> 8] = cpu->opcode & 0x00FF;
+	const uint8_t x = op_x(cpu->opcode);
+	const uint8_t kk = op_kk(cpu->opcode);
+
+	cpu->V[x] = kk;
 	cpu->PC += 2;
 }
 
@@ -130,7 +159,10 @@ void i_6xkk(CPU * const cpu)
 // Adds the value kk to the value of register Vx, then stores the result in Vx. 
 void i_7xkk(CPU * const cpu)
 {
-	cpu->V[(cpu->opcode & 0x0F00) >> 8] += (cpu->opcode & 0x00FF);
+	const uint8_t x = op_x(cpu->opcode);
+	const uint8_t kk = op_kk(cpu->opcode);
+
+	cpu->V[x] += kk;
 	cpu->PC += 2;
 }
 
@@ -139,7 +171,10 @@ void i_7xkk(CPU * const cpu)
 // Stores the value of register Vy in register Vx.
 void i_8xy0(CPU * const cpu)
 {
-	cpu->V[(cpu->opcode & 0x0F00) >> 8] = cpu->V[(cpu->opcode & 0x00F0) >> 4];
+	const uint8_t x = op_x(cpu->opcode);
+	const uint8_t y = op_y(cpu->opcode);
+
+	cpu->V[x] = cpu->V[y];
 	cpu->PC += 2;
 }
 
@@ -150,7 +185,10 @@ void i_8xy0(CPU * const cpu)
 // then the same bit in the result is also 1. Otherwise, it is 0. 
 void i_8xy1(CPU * const cpu)
 {
-	cpu->V[(cpu->opcode & 0x0F00) >> 8] |= cpu->V[(cpu->opcode & 0x00F0) >> 4];
+	const uint8_t x = op_x(cpu->opcode);
+	const uint8_t y = op_y(cpu->opcode);
+
+	cpu->V[x] |= cpu->V[y];
 	cpu->PC += 2;
 }
 
@@ -161,7 +199,10 @@ void i_8xy1(CPU * const cpu)
 // then the same bit in the result is also 1. Otherwise, it is 0. 
 void i_8xy2(CPU * const cpu)
 {
-	cpu->V[(cpu->opcode & 0x0F00) >> 8] &= cpu->V[(cpu->opcode & 0x00F0) >> 4];
+	const uint8_t x = op_x(cpu->opcode);
+	const uint8_t y = op_y(cpu->opcode);
+
+	cpu->V[x] &= cpu->V[y];
 	cpu->PC += 2;
 }
 
@@ -172,7 +213,10 @@ void i_8xy2(CPU * const cpu)
 // then the corresponding bit in the result is set to 1. Otherwise, it is 0. 
 void i_8xy3(CPU * const cpu)
 {
-	cpu->V[(cpu->opcode & 0x0F00) >> 8] ^= cpu->V[(cpu->opcode & 0x00F0) >> 4];
+	const uint8_t x = op_x(cpu->opcode);
+	const uint8_t y = op_y(cpu->opcode);
+
+	cpu->V[x] ^= cpu->V[y];
 	cpu->PC += 2;
 }
 
@@ -182,15 +226,11 @@ void i_8xy3(CPU * const cpu)
 // VF is set to 1, otherwise 0. Only the lowest 8 bits of the result are kept, and stored in Vx.
 void i_8xy4(CPU * const cpu)
 {
-	if (cpu->V[(cpu->opcode & 0x0F00) >> 8] > (0xFF - cpu->V[(cpu->opcode & 0x00F0) >> 4]))
-	{
-		cpu->V[0xF] = 1;
-	}
-	else
-	{
-		cpu->V[0xF] = 0;
-	}
-	cpu->V[(cpu->opcode & 0x0F00) >> 8] += cpu->V[(cpu->opcode & 0x00F0) >> 4];
+	const uint8_t x = op_x(cpu->opcode);
+	const uint8_t y = op_y(cpu->opcode);
+	
+	cpu->V[0xF] = (cpu->V[x] > (0xFF - cpu->V[y]));
+	cpu->V[x] = (uint8_t) (cpu->V[x] + cpu->V[y]);
 	cpu->PC += 2;
 }
 
@@ -199,15 +239,11 @@ void i_8xy4(CPU * const cpu)
 // If Vx > Vy, then VF is set to 1, otherwise 0. Then Vy is subtracted from Vx, and the results stored in Vx.
 void i_8xy5(CPU * const cpu)
 {
-	if (cpu->V[(cpu->opcode & 0x0F00) >> 8] > cpu->V[(cpu->opcode & 0x00F0) >> 4])
-	{
-		cpu->V[0xF] = 1;
-	}
-	else
-	{
-		cpu->V[0xF] = 0;
-	}
-	cpu->V[(cpu->opcode & 0x0F00) >> 8] -= cpu->V[(cpu->opcode & 0x00F0) >> 4];
+	const uint8_t x = op_x(cpu->opcode);
+	const uint8_t y = op_y(cpu->opcode);
+
+	cpu->V[0xF] = (cpu->V[x] > cpu->V[y]);
+	cpu->V[x] = (cpu->V[x] - cpu->V[y]);
 	cpu->PC += 2;
 }
 
@@ -217,33 +253,24 @@ void i_8xy5(CPU * const cpu)
 // Vy is unused.
 void i_8xy6(CPU * const cpu)
 {
-	if (cpu->V[(cpu->opcode & 0x0F00) >> 8] & 0x0001)
-	{
-		cpu->V[0xF] = 1;
-	}
-	else
-	{
-		cpu->V[0xF] = 0;
-	}
-	cpu->V[(cpu->opcode & 0x0F00) >> 8] = (cpu->V[(cpu->opcode & 0x0F00) >> 8] >> 1);
+	const uint8_t x = op_x(cpu->opcode);
+
+	cpu->V[0xF] = cpu->V[x] & 0x0001;
+	cpu->V[x] = (cpu->V[x] >> 1);
 	cpu->PC += 2;
 }
 
 // 8xy7 - SUBN Vx, Vy
 // Set Vx = Vy - Vx, set VF = NOT borrow.
 // If Vy > Vx, then VF is set to 1, otherwise 0. Then Vx is subtracted from Vy, and the results stored in Vx.
+// My Note: SO WHICH IS IT!!! > or >= ???
 void i_8xy7(CPU * const cpu)
 {
-	if (cpu->V[(cpu->opcode & 0x0F00) >> 8] <= cpu->V[(cpu->opcode & 0x00F0) >> 4])
-	{
-		cpu->V[0xF] = 1;
-	}
-	else
-	{
-		cpu->V[0xF] = 0;
-	}
-	cpu->V[(cpu->opcode & 0x0F00) >> 8] = 
-		cpu->V[(cpu->opcode & 0x00F0) >> 4] - cpu->V[(cpu->opcode & 0x0F00) >> 8];
+	const uint8_t x = op_x(cpu->opcode);
+	const uint8_t y = op_y(cpu->opcode);
+
+	cpu->V[0xF] = (cpu->V[x] <= cpu->V[y]);
+	cpu->V[x] = cpu->V[y] - cpu->V[x];
 	cpu->PC += 2;
 }
 
@@ -252,15 +279,10 @@ void i_8xy7(CPU * const cpu)
 // If the most-significant bit of Vx is 1, then VF is set to 1, otherwise to 0. Then Vx is multiplied by 2.
 void i_8xyE(CPU * const cpu)
 {
-	if (cpu->V[(cpu->opcode & 0x0F00) >> 8] & 0x8000)
-	{
-		cpu->V[0xF] = 1;
-	}
-	else
-	{
-		cpu->V[0xF] = 0;
-	}
-	cpu->V[(cpu->opcode & 0x0F00) >> 8] = (cpu->V[(cpu->opcode & 0x0F00) >> 8] << 1);
+	const uint8_t x = op_x(cpu->opcode);
+
+	cpu->V[0xF] = (cpu->V[x] & 0x8000);
+	cpu->V[x] = (cpu->V[x] << 1);
 	cpu->PC += 2;
 }
 
@@ -269,12 +291,10 @@ void i_8xyE(CPU * const cpu)
 // The values of Vx and Vy are compared, and if they are not equal, the program counter is increased by 2.
 void i_9xy0(CPU * const cpu)
 {
-	uint16_t PC_increment = 2;
-	if (cpu->V[(cpu->opcode & 0x0F00) >> 8] != cpu->V[(cpu->opcode & 0x00F0) >> 4])
-	{
-		PC_increment = 4;
-	}
-	cpu->PC += PC_increment;
+	const uint8_t x = op_x(cpu->opcode);
+	const uint8_t y = op_y(cpu->opcode);
+
+	cpu->PC += ((cpu->V[x] != cpu->V[y]) ? 4 : 2);
 }
 
 // Annn - LD I, addr
@@ -282,7 +302,9 @@ void i_9xy0(CPU * const cpu)
 // The value of register I is set to nnn.
 void i_Annn(CPU * const cpu)
 {
-	cpu->I = cpu->opcode & 0x0FFF;
+	const uint16_t nnn = op_nnn(cpu->opcode);
+
+	cpu->I = nnn;
 	cpu->PC += 2;
 }
 
@@ -291,18 +313,21 @@ void i_Annn(CPU * const cpu)
 // The program counter is set to nnn plus the value of V0.
 void i_Bnnn(CPU * const cpu)
 {
-	cpu->PC = cpu->V[0x0] + (cpu->opcode & 0x0FFF);
+	const uint16_t nnn = op_nnn(cpu->opcode);
+
+	cpu->PC = cpu->V[0x0] + nnn;
 }
 
 // Cxkk - RND Vx, byte
 // Set Vx = random byte AND kk.
 // The interpreter generates a random number from 0 to 255, which is then ANDed with the value kk. 
 // The results are stored in Vx. See instruction 8xy2 for more information on AND.
-// THIS IS SUSPECT. WHY AND???
 void i_Cxkk(CPU * const cpu)
 {
-	cpu->V[(cpu->opcode & 0x0F00) >> 8] = 
-		(uint16_t)(rand() % 256) &  (cpu->opcode & 0x00FF); 
+	const uint8_t x = op_x(cpu->opcode);
+	const uint8_t kk = op_kk(cpu->opcode);
+
+	cpu->V[x] = (uint16_t) ((rand() % 256) & kk); 
 	cpu->PC += 2;
 }
 
@@ -315,20 +340,22 @@ void i_Cxkk(CPU * const cpu)
 // See instruction 8xy3 for more information on XOR, and section 2.4, Display, for more information on the Chip-8 screen and sprites.
 void i_Dxyn(CPU * const cpu)
 {
-	uint16_t VF_status = 0;
+	const uint8_t x = op_x(cpu->opcode);
+	const uint8_t y = op_y(cpu->opcode);
+	const uint8_t n = cpu->opcode & 0x000F;
+	const uint16_t Vx = cpu->V[x];
+	const uint16_t Vy = cpu->V[y];
 
-	uint8_t height = cpu->opcode & 0x000F;
-	uint16_t x = cpu->V[(cpu->opcode & 0x0F00) >> 8];
-	uint16_t y = cpu->V[(cpu->opcode & 0x00F0) >> 4];
-
-	for (uint8_t row = 0; row < height; ++row)
+	for (uint8_t row = 0; row < n; ++row)
 	{
 		uint8_t byte_to_write = cpu->mem[cpu->I + row];
+
 		for (uint8_t bit = 0; bit < 8; ++bit)
 		{
 			if (byte_to_write & (0x80 >> bit))
 			{
-				size_t pixel_index = ((y  + row) * SCR_W) + (x + bit);
+				size_t pixel_index = ((Vy + row) * SCR_W) + (Vx + bit);
+
 				if (pixel_index < SCR_W * SCR_H)
 				{
 					if (cpu->screen[pixel_index] == 0x01)
@@ -355,7 +382,9 @@ void i_Dxyn(CPU * const cpu)
 // Checks the keyboard, and if the key corresponding to the value of Vx is currently in the down position, PC is increased by 2.
 void i_Ex9E(CPU * const cpu)
 {
-	cpu->PC += (cpu->keys[(cpu->opcode & 0x0F00) >> 8]) ? 4 : 2;
+	const uint8_t x = op_x(cpu->opcode);
+
+	cpu->PC += (cpu->keys[cpu->V[x]] ? 4 : 2); // S* try switching around 4 and 2, is keydown 0 or 1?
 }
 
 // ExA1 - SKNP Vx
@@ -363,7 +392,9 @@ void i_Ex9E(CPU * const cpu)
 // Checks the keyboard, and if the key corresponding to the value of Vx is currently in the up position, PC is increased by 2.
 void i_ExA1(CPU * const cpu)
 {
-	cpu->PC += (cpu->keys[(cpu->opcode & 0x0F00) >> 8]) ? 2 : 4;
+	const uint8_t x = op_x(cpu->opcode);
+
+	cpu->PC += (cpu->keys[cpu->V[x]] ? 2 : 4); // S* try switching around 4 and 2, is keydown 0 or 1?
 }
 
 // Fx07 - LD Vx, DT
@@ -371,7 +402,9 @@ void i_ExA1(CPU * const cpu)
 // The value of DT is placed into Vx.
 void i_Fx07(CPU * const cpu)
 {
-	cpu->V[(cpu->opcode & 0x0F00) >> 8] = cpu->delay_timer;
+	const uint8_t x = op_x(cpu->opcode);
+
+	cpu->V[x] = cpu->delay_timer;
 	cpu->PC += 2;
 }
 
@@ -380,7 +413,9 @@ void i_Fx07(CPU * const cpu)
 // All execution stops until a key is pressed, then the value of that key is stored in Vx.
 void i_Fx0A(CPU * const cpu)
 {
-	cpu->V[(cpu->opcode & 0x0F00) >> 8] = io_waitForKey();
+	const uint8_t x = op_x(cpu->opcode);
+
+	cpu->V[x] = io_waitForKey();
 	cpu->PC += 2;
 }
 
@@ -389,7 +424,9 @@ void i_Fx0A(CPU * const cpu)
 // DT is set equal to the value of Vx.
 void i_Fx15(CPU * const cpu)
 {
-	cpu->delay_timer = (uint8_t) cpu->V[(cpu->opcode & 0x0F00) >> 8];
+	const uint8_t x = op_x(cpu->opcode);
+
+	cpu->delay_timer = (uint8_t) cpu->V[x];
 	cpu->PC += 2;
 }
 
@@ -398,7 +435,9 @@ void i_Fx15(CPU * const cpu)
 // ST is set equal to the value of Vx.
 void i_Fx18(CPU * const cpu)
 {
-	cpu->sound_timer = (uint8_t) cpu->V[(cpu->opcode & 0x0F00) >> 8];
+	const uint8_t x = op_x(cpu->opcode);
+
+	cpu->sound_timer = (uint8_t) cpu->V[x];
 	cpu->PC += 2;
 }
 
@@ -408,7 +447,9 @@ void i_Fx18(CPU * const cpu)
 // The values of I and Vx are added, and the results are stored in I.
 void i_Fx1E(CPU * const cpu)
 {
-	cpu->I += ((cpu->opcode & 0x0F00) >> 8);
+	const uint8_t x = op_x(cpu->opcode);
+
+	cpu->I += cpu->V[x];
 	cpu->PC += 2;
 }
 
@@ -418,8 +459,9 @@ void i_Fx1E(CPU * const cpu)
 // See section 2.4, Display, for more information on the Chip-8 hexadecimal font.
 void i_Fx29(CPU * const cpu)
 {
-	// fonts for HEX digits start at 0x50 and are 5 bytes each
-	cpu->I = 0x50 + (5 * ((cpu->opcode & 0x0F00) >> 8));
+	const uint8_t x = op_x(cpu->opcode);
+
+	cpu->I = FONTSET_START_ADDRESS + (BYTES_PER_LETTER * cpu->V[x]);
 	cpu->PC += 2;
 }
 
@@ -429,7 +471,9 @@ void i_Fx29(CPU * const cpu)
 // location in I, the tens digit at location I+1, and the ones digit at location I+2.
 void i_Fx33(CPU * const cpu)
 {
-	uint16_t Vx = cpu->V[(cpu->opcode & 0x0F00) >> 8];
+	const uint8_t x = op_x(cpu->opcode);
+	const uint16_t Vx = cpu->V[x];
+
 	cpu->mem[cpu->I] = Vx / 100;	// hundreds
 	cpu->mem[cpu->I + 1] = (Vx / 10) % 10;	// tens
 	cpu->mem[cpu->I + 2] = Vx % 10; // ones
@@ -441,11 +485,12 @@ void i_Fx33(CPU * const cpu)
 // The interpreter copies the values of registers V0 through Vx into memory, starting at the address in I.
 void i_Fx55(CPU * const cpu)
 {
-	const int x = (cpu->opcode >> 8) & 0xF;
+	const uint8_t x = op_x(cpu->opcode);
+
 	for (int i = 0; i <= x; ++i)
 	{
-		cpu->mem[cpu->I + (2 * i)] = 		cpu->V[i] >> 8;
-		cpu->mem[cpu->I + (2 * i) + 1] =	cpu->V[i] & 0x00FF;
+		cpu->mem[cpu->I + (2 * i)] = (uint8_t) (cpu->V[i] >> 8);
+		cpu->mem[cpu->I + (2 * i) + 1] = (uint8_t) (cpu->V[i]);
 	}
 	cpu->PC += 2;
 }
@@ -455,7 +500,8 @@ void i_Fx55(CPU * const cpu)
 // The interpreter reads values from memory starting at location I into registers V0 through Vx.
 void i_Fx65(CPU * const cpu)
 {
-	const int x = (cpu->opcode >> 8) & 0xF;
+	const uint8_t x = op_x(cpu->opcode);
+
 	for (int i = 0; i <= x; ++i)
 	{
 		cpu->V[i] = ((uint16_t) (cpu->mem[cpu->I + (2 * i)] << 8)) | cpu->mem[cpu->I + (2 * i) + 1];
