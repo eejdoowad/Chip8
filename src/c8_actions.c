@@ -116,7 +116,7 @@ void cpu_loadROM(CPU * const cpu, char const * const game_file)
 
 // array of function pointer where the functions correspond to the
 // instruction to be executed given the high order opcode nibble
-void (*instruction_table[16])(CPU * const cpu) = 
+static void (*instruction_table[16])(CPU * const cpu) = 
 {
 	i_0xxx,		// 0
 	i_1nnn, 	// 1

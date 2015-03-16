@@ -190,7 +190,7 @@ void generateAssemblyFile(char const * const binfile)
 
 // array of function pointer where the functions correspond to the
 // instruction to be executed given the high order opcode nibble
-void(*assembly_table[16])(const uint16_t opcode, char * const assembly) =
+static void(*assembly_table[16])(const uint16_t opcode, char * const assembly) =
 {
 	i_0xxx,		// 0
 	i_1nnn, 	// 1
@@ -312,7 +312,7 @@ void i_Fxxx(const uint16_t opcode, char * const assembly)
 
 #ifdef _MSC_VER
 #define writeString sprintf_s
-#elif
+#else
 #define writeString snprintf
 #endif
 

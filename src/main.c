@@ -32,7 +32,9 @@ int main(int argc, char* argv[])
 
 	unsigned const startTime = SDL_GetTicks();
 	unsigned cycleStartTime;
+	unsigned cycleEndTime;
 	unsigned cycleElapsedTime;
+	unsigned ticksToWait;
 
 	bool quit = false;
 	for (int cycle = 0; !quit; ++cycle)
@@ -49,10 +51,12 @@ int main(int argc, char* argv[])
 
 		io_updateKeys(&cpu, &io, &quit);
 
-		cycleElapsedTime = SDL_GetTicks() - cycleStartTime;
+		cycleEndTime = SDL_GetTicks();
+		cycleElapsedTime =  cycleEndTime - cycleStartTime;
 		if (cycleElapsedTime < TICKS_PER_FRAME)
 		{
-			SDL_Delay(TICKS_PER_FRAME - cycleElapsedTime);
+			ticksToWait = TICKS_PER_FRAME - cycleElapsedTime;
+			SDL_Delay(ticksToWait);
 		}
 
 		io_updateWindowTitle(argv[1], &io);
