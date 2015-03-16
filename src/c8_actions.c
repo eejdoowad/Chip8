@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <time.h>
 #include "c8_actions.h"
+#include "c8_util.h"
 #include "instructions.h"
 
 static void cpu_loadFontSet(CPU * const cpu);
@@ -96,6 +97,10 @@ void cpu_emulateCycle(CPU * const cpu)
 {
 	// Fetch Opcode
 	cpu->opcode = ((uint16_t)cpu->mem[cpu->PC] << 8) | (cpu->mem[cpu->PC + 1]);
+
+	
+	cpu_print_current_instruction(cpu);
+
 
 	// deocode and execute
 	instruction_table[(cpu->opcode & 0xF000) >> 12](cpu);

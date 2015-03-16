@@ -6,7 +6,6 @@
 #include "c8_actions.h"
 #include "instructions.h"
 
-
 int main(int argc, char* argv[])
 {
 
@@ -28,6 +27,7 @@ int main(int argc, char* argv[])
 	io_initIOModule(&io);
 
 	cpu_loadROM(&cpu, argv[1]);
+	generateAssemblyFile(argv[1]);
 
 	unsigned const startTime = SDL_GetTicks();
 	unsigned cycleStartTime;
@@ -39,6 +39,7 @@ int main(int argc, char* argv[])
 		cycleStartTime = SDL_GetTicks();
 
 		cpu_emulateCycle(&cpu);
+
 		if (cpu.draw)
 		{
 			io_updateScreen(&io, cpu.screen);

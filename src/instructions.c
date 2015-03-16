@@ -1,5 +1,5 @@
-#include <stdio.h> // printf()
-#include <stdlib.h> // exit()
+#include <stdio.h>
+#include <stdlib.h>
 #include "instructions.h"
 #include "io.h"
 
@@ -73,7 +73,7 @@ void i_1nnn(CPU * const cpu)
 void i_2nnn(CPU * const cpu)
 {
 	cpu->SP += 1;
-	cpu->stack[cpu->SP] = cpu->PC;
+	cpu->stack[cpu->SP] = cpu->PC + 2; // RETURN TO INSTRUCTION AFTER CALL, OTHERWISE LOOPS SAME SUBROUTINE FOREVER
 	cpu->PC = cpu->opcode & 0x0FFF;
 }
 
