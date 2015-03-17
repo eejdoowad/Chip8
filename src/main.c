@@ -30,11 +30,11 @@ int main(int argc, char* argv[])
 	cpu_loadROM(&cpu, argv[1]);
 	generateAssemblyFile(argv[1]);
 
-	unsigned const startTime = SDL_GetTicks();
-	unsigned cycleStartTime;
-	unsigned cycleEndTime;
-	unsigned cycleElapsedTime;
-	unsigned ticksToWait;
+	io_updateWindowTitle(argv[1], &io);
+
+	uint32_t cycleStartTime;
+	uint32_t cycleEndTime;
+	uint32_t cycleElapsedTime;
 
 	bool quit = false;
 	for (int cycle = 0; !quit; ++cycle)
@@ -53,13 +53,15 @@ int main(int argc, char* argv[])
 
 		cycleEndTime = SDL_GetTicks();
 		cycleElapsedTime =  cycleEndTime - cycleStartTime;
-		if (cycleElapsedTime < TICKS_PER_FRAME)
+		if (cycleElapsedTime < TICKS_PER_CYCLE)
 		{
-			ticksToWait = TICKS_PER_FRAME - cycleElapsedTime;
-			SDL_Delay(ticksToWait);
-		}
+			if (TICKS_PER_CYCLE > cycleElapsedTime)
+			{
+				SDL_Delay(TICKS_PER_CYCLE - cycleElapsedTime);
 
-		io_updateWindowTitle(argv[1], &io);
+			}
+			
+		}
 	}
 
 	io_destroyIOModule(&io);

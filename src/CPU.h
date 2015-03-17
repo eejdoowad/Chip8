@@ -8,8 +8,8 @@
 #define BYTES_PER_LETTER 5
 #define SCR_W 64
 #define SCR_H 32
-#define FPS ((float)60)
-#define TICKS_PER_FRAME ((uint32_t)(1000/FPS))
+#define CYCLES_PER_SECOND 500
+#define TICKS_PER_CYCLE ((uint32_t)(1000.0/CYCLES_PER_SECOND))
 
 typedef struct
 {
