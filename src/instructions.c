@@ -143,11 +143,11 @@ void i_6xkk(CPU * const cpu)
 // Set Vx = Vx + kk.
 // Adds the value kk to the value of register Vx, then stores the result in Vx. 
 void i_7xkk(CPU * const cpu)
-{
+{//
 	const uint8_t x = op_x(cpu->opcode);
 	const uint8_t kk = op_kk(cpu->opcode);
 
-	cpu->V[x] += kk;
+	cpu->V[x] = (cpu->V[x] + kk) & 0xFF; // S* Not sure about masking!!! but it helps merlin
 	cpu->PC += 2;
 }
 
@@ -166,7 +166,7 @@ void i_8xy0(CPU * const cpu)
 // 8xy1 - OR Vx, Vy
 // Set Vx = Vx OR Vy.
 // Performs a bitwise OR on the values of Vx and Vy, then stores the result in Vx. 
-// A bitwise OR compares the corrseponding bits from two values, and if either bit is 1, 
+// A bitwise OR compares the corrseponding bits from two values, and if either bit is 1
 // then the same bit in the result is also 1. Otherwise, it is 0. 
 void i_8xy1(CPU * const cpu)
 {
@@ -210,24 +210,25 @@ void i_8xy3(CPU * const cpu)
 // The values of Vx and Vy are added together. If the result is greater than 8 bits (i.e., > 255,) 
 // VF is set to 1, otherwise 0. Only the lowest 8 bits of the result are kept, and stored in Vx.
 void i_8xy4(CPU * const cpu)
-{
+{// S*
 	const uint8_t x = op_x(cpu->opcode);
 	const uint8_t y = op_y(cpu->opcode);
 	
 	cpu->V[0xF] = (cpu->V[x] > (0xFF - cpu->V[y]));
-	cpu->V[x] = (uint8_t) (cpu->V[x] + cpu->V[y]);
+	cpu->V[x] = (cpu->V[x] + cpu->V[y]) & 0x00FF;
 	cpu->PC += 2;
 }
 
 // 8xy5 - SUB Vx, Vy
 // Set Vx = Vx - Vy, set VF = NOT borrow.
 // If Vx > Vy, then VF is set to 1, otherwise 0. Then Vy is subtracted from Vx, and the results stored in Vx.
+// My Note: must have ment Vx >= Vy
 void i_8xy5(CPU * const cpu)
 {
 	const uint8_t x = op_x(cpu->opcode);
 	const uint8_t y = op_y(cpu->opcode);
 
-	cpu->V[0xF] = (cpu->V[x] > cpu->V[y]);
+	cpu->V[0xF] = (cpu->V[x] >= cpu->V[y]);
 	cpu->V[x] = (cpu->V[x] - cpu->V[y]);
 	cpu->PC += 2;
 }
@@ -241,7 +242,7 @@ void i_8xy6(CPU * const cpu)
 	const uint8_t x = op_x(cpu->opcode);
 
 	cpu->V[0xF] = cpu->V[x] & 0x0001;
-	cpu->V[x] = (cpu->V[x] >> 1);
+	cpu->V[x] >>= 1;
 	cpu->PC += 2;
 }
 
@@ -263,11 +264,11 @@ void i_8xy7(CPU * const cpu)
 // Set Vx = Vx SHL 1.
 // If the most-significant bit of Vx is 1, then VF is set to 1, otherwise to 0. Then Vx is multiplied by 2.
 void i_8xyE(CPU * const cpu)
-{
+{ // S*
 	const uint8_t x = op_x(cpu->opcode);
 
 	cpu->V[0xF] = (cpu->V[x] & 0x8000);
-	cpu->V[x] = (cpu->V[x] << 1);
+	cpu->V[x] <<= 1;;
 	cpu->PC += 2;
 }
 
@@ -342,20 +343,11 @@ void i_Dxyn(CPU * const cpu)
 				const uint8_t x_coordinate = (Vx + bit) % SCR_W;
 				const uint8_t y_coordinate = (Vy + sprite_row) % SCR_H;
 				const uint16_t pixel_index = ((uint16_t) y_coordinate * SCR_W) + x_coordinate;
-
-				if (pixel_index < SCR_W * SCR_H)
+				if (cpu->screen[pixel_index] == 0x01)
 				{
-					if (cpu->screen[pixel_index] == 0x01)
-					{
-						cpu->V[0xF] = 1;
-					}
-					cpu->screen[pixel_index] ^= 0x01;
+					cpu->V[0xF] = 1;
 				}
-				else
-				{
-					fprintf(stderr, "Pixel Index %d exceeds display boundary\n", pixel_index);
-					fflush(stderr);
-				}
+				cpu->screen[pixel_index] ^= 0x01;
 				
 			}
 		}

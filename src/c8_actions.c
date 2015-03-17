@@ -148,7 +148,7 @@ void i_8xxx(CPU * const cpu)
 			i_8xy1(cpu);
 			break;
 		case 2:
-			i_8xy1(cpu);
+			i_8xy2(cpu);
 			break;
 		case 3:
 			i_8xy3(cpu);

@@ -99,7 +99,7 @@ void cpu_print_current_instruction(CPU const * const cpu)
 {
 	char assembly[MAX_ASSEMBLY_LEN];
 	assemble(cpu->opcode, assembly);
-	printf("PC=0x%03X, SP=%X, Ins=0x%04X %s\n", cpu->PC, cpu->SP, cpu->opcode, assembly);
+	printf("PC=0x%03X, SP=%X, I=0x%03X, OPCODE=0x%04X %s\n", cpu->PC, cpu->SP, cpu->I, cpu->opcode, assembly);
 }
 
 static void(*assembly_table[16])(const uint16_t opcode, char * const assembly);
@@ -222,7 +222,7 @@ void i_8xxx(const uint16_t opcode, char * const assembly)
 		i_8xy1(opcode, assembly);
 		break;
 	case 2:
-		i_8xy1(opcode, assembly);
+		i_8xy2(opcode, assembly);
 		break;
 	case 3:
 		i_8xy3(opcode, assembly);
