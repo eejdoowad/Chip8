@@ -1,7 +1,13 @@
 # Chip8
-A Chip-8 emulator written in C. Inspired and heavily drawing upon the work of others (see References).
 
 ---This is still a work in progress---
+
+A Chip-8 emulator written in C. Inspired and heavily drawing upon the work of others (see References).
+
+Currently being ported to the web with emscripten.
+
+Online demo: http://eejdoowad.github.io/Chip8/ (controls are '2', 'q', 'z', 'x')
+
 
 To build on Mac, just call make in the build-mac directory. This generates an executable in the bin directory.
 
