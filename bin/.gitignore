@@ -2,3 +2,4 @@
 *
 # Except this .gitignore file
 !.gitignore
+!README.md
