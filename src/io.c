@@ -5,20 +5,25 @@
 #include "io.h"
 #include "CPU.h"
 
-void io_initIOModule(IO_Module * const io)
+// returns 1 on failure, 0 on success
+int io_initIOModule(IO_Module * const io)
 {
-	SDL_Init(SDL_INIT_VIDEO);
-
-	SDL_CreateWindowAndRenderer(640, 320, SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE, &(io->window), &(io->renderer));
-	SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, 0);
+	if (SDL_Init(SDL_INIT_VIDEO) < 0)
+	{
+		fprintf(stderr, "SDL_Init failed: %s\n", SDL_GetError());
+		return 1;
+	}
+	if (SDL_CreateWindowAndRenderer(640, 320, SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE, &(io->window), &(io->renderer)) < 0)
+	{
+		fprintf(stderr, "SDL_CreateWindowAndRenderer failed: %s\n", SDL_GetError());
+		return 1;
+	}
 	SDL_RenderSetLogicalSize(io->renderer, 64, 32);
-
-	io->e = (SDL_Event *)malloc(sizeof(SDL_Event));
-
 	for (int i = 0; i < 512; ++i)
 	{
 		io->title[i] = '\0';
 	}
+	return 0;
 }
 
 static  SDL_Keycode key_mappings[16] =
@@ -31,7 +36,6 @@ static  SDL_Keycode key_mappings[16] =
 
 void io_destroyIOModule(IO_Module * const io)
 {
-	free(io->e);
 	SDL_DestroyRenderer(io->renderer);
 	SDL_DestroyWindow(io->window);
 	SDL_Quit();
@@ -59,8 +63,7 @@ void io_updateScreen(IO_Module const * const io, uint8_t * screen)
 
 uint8_t io_waitForKey(void)
 {
-	SDL_Event e;
-	
+	static SDL_Event e;
 	for (;;)
 	{
 		SDL_WaitEvent(&e);
@@ -72,21 +75,20 @@ uint8_t io_waitForKey(void)
 			}
 		}
 	}
-	
-
 }
 
 void io_updateKeys(CPU * const cpu, IO_Module * const io, bool * const quit)
 {
-	while (SDL_PollEvent(io->e))
+	static SDL_Event e;
+	while (SDL_PollEvent(&e))
 	{
-		switch (io->e->type)
+		switch (e.type)
 		{
 			case SDL_QUIT:
 				*quit = true;
 				break;
 			case SDL_KEYDOWN:
-				switch (io->e->key.keysym.sym)
+				switch (e.key.keysym.sym)
 				{
 					case SDLK_ESCAPE:
 						*quit = true;
@@ -94,17 +96,16 @@ void io_updateKeys(CPU * const cpu, IO_Module * const io, bool * const quit)
 				}
 				for (int i = 0; i < 16; ++i)
 				{
-					if (key_mappings[i] == io->e->key.keysym.sym)
+					if (key_mappings[i] == e.key.keysym.sym)
 					{
 						cpu->keys[i] = 1;
 					}
 				}
-
 				break;
 			case SDL_KEYUP:
 				for (int i = 0; i < 16; ++i)
 				{
-					if (key_mappings[i] == io->e->key.keysym.sym)
+					if (key_mappings[i] == e.key.keysym.sym)
 					{
 						cpu->keys[i] = 0;
 					}
@@ -121,6 +122,5 @@ void io_updateWindowTitle(char const * const ROM, IO_Module * const io)
 #else
 	snprintf(io->title, sizeof(io->title), "Chip 8 Emulator: Running %s at %d Cycles Per Second", ROM, CYCLES_PER_SECOND);
 #endif
-
 	SDL_SetWindowTitle(io->window, io->title);
 }

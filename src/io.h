@@ -13,7 +13,7 @@ typedef struct
 	char title[512]; // sort of arbitrary size. not sure how big it needs to be
 } IO_Module;
 
-void io_initIOModule(IO_Module * const io);
+int io_initIOModule(IO_Module * const io);
 
 void io_destroyIOModule(IO_Module * const io);
 

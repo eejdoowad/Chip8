@@ -10,7 +10,7 @@ void cpu_initialize(CPU * const cpu);
 void cpu_emulateCycle(CPU * const cpu);
 
 //loads the game into memory
-void cpu_loadROM(CPU * const cpu, char const * const game_file);
+int cpu_loadROM(CPU * const cpu, char const * const game_file);
 
 // handles decode and execute cycle by calling appropriate instructions.
 void cpu_decodeAndExecute(CPU * const cpu); 

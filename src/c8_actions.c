@@ -80,7 +80,7 @@ void cpu_emulateCycle(CPU * const cpu)
 	cpu->opcode = ((uint16_t)cpu->mem[cpu->PC] << 8) | (cpu->mem[cpu->PC + 1]);
 
 	
-	cpu_print_current_instruction(cpu);
+	// cpu_print_current_instruction(cpu);
 
 
 	// deocode and execute
@@ -97,21 +97,22 @@ void cpu_emulateCycle(CPU * const cpu)
 	}
 }
 
-//loads the game into memory
-void cpu_loadROM(CPU * const cpu, char const * const game_file) 
+// loads the game into memory
+// returns 0 on success, 1 on failure
+int cpu_loadROM(CPU * const cpu, char const * const game_file) 
 {
 	FILE * fp;
 	if ((fp = fopen(game_file, "rb")) == NULL)
 	{
 		fprintf(stderr, "Opening ROM  \"%s\" failed\n", game_file);
-		fflush(stderr);
-		exit(1);
+		return 1;
 	}
 
-	int numread = fread(cpu->mem + PROGRAM_START_ADDRESS, 1, MEM_BYTES - PROGRAM_START_ADDRESS, fp);
-	printf("\nBytes read from ROM: %d\n", numread);
-	fflush(stdout);
+	int numread = fread(cpu->mem + PROGRAM_START_ADDRESS, 1, MAX_PROGRAM_SIZE, fp);
+	printf("Bytes read from ROM: %d\n", numread);
 	fclose(fp);
+	return 0;
+
 }
 
 // array of function pointer where the functions correspond to the

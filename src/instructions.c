@@ -13,6 +13,7 @@
 // kk or byte - An 8-bit value, the lowest 8 bits of the instruction
 /////////////////////////////////////////////////////////////////////////
 
+
 static uint16_t op_nnn(const uint16_t opcode)
 {
 	return opcode & 0x0FFF;
@@ -36,7 +37,7 @@ static uint8_t op_kk(const uint16_t opcode)
 // do nothing instruction
 void i_null(CPU * const cpu)
 {
-	printf("\n\n************* NULL OPCODE *************\n\n");
+	
 }
 
 // 0nnn - SYS addr
