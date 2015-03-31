@@ -13,7 +13,6 @@
   <ItemGroup>
     <ClCompile Include="..\..\..\src\c8_actions.c" />
     <ClCompile Include="..\..\..\src\c8_util.c" />
-    <ClCompile Include="..\..\..\src\CPU.c" />
     <ClCompile Include="..\..\..\src\instructions.c" />
     <ClCompile Include="..\..\..\src\io.c" />
     <ClCompile Include="..\..\..\src\main.c" />

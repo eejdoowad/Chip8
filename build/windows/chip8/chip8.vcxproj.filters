@@ -12,9 +12,6 @@
     <ClCompile Include="..\..\..\src\c8_util.c">
       <Filter>src</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\src\CPU.c">
-      <Filter>src</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\..\src\instructions.c">
       <Filter>src</Filter>
     </ClCompile>

@@ -26,12 +26,33 @@ int io_initIOModule(IO_Module * const io)
 	return 0;
 }
 
-static  SDL_Keycode key_mappings[16] =
-{
-	SDLK_1, SDLK_2, SDLK_3, SDLK_4,
-	SDLK_q, SDLK_w, SDLK_e, SDLK_r,
-	SDLK_a, SDLK_s, SDLK_d, SDLK_f,
-	SDLK_z, SDLK_x, SDLK_c, SDLK_v
+// Chip8 Keyboard vs My Keyboard
+// 1 2 3 C		1 2 3 4
+// 4 5 6 D		q w e r
+// 7 8 9 E		a s d f
+// A 0 B F		z x c v
+
+// Mapping
+// 0: x
+// 1: 1
+// 2: 2
+// 3: 3
+// 4: q
+// 5: w
+// 6: e
+// 7: a
+// 8: s
+// 9: d
+// A: z
+// B: c
+// C: 4
+// D: r
+// E: f
+// F: v
+
+static  SDL_Keycode key_mappings[16] = {
+	SDLK_x, SDLK_1, SDLK_2, SDLK_3, SDLK_q, SDLK_w, SDLK_e, SDLK_a,
+	SDLK_s, SDLK_d, SDLK_z, SDLK_c, SDLK_4, SDLK_r, SDLK_f, SDLK_v
 };
 
 void io_destroyIOModule(IO_Module * const io)
@@ -58,8 +79,6 @@ void io_updateScreen(IO_Module const * const io, uint8_t * screen)
 	}
 	SDL_RenderPresent(io->renderer);
 }
-
-
 
 uint8_t io_waitForKey(void)
 {
