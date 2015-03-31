@@ -6,36 +6,39 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\src\c8_actions.c">
+    <ClCompile Include="..\..\..\src\c8_actions.c">
       <Filter>src</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\src\c8_util.c">
+    <ClCompile Include="..\..\..\src\c8_util.c">
       <Filter>src</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\src\instructions.c">
+    <ClCompile Include="..\..\..\src\CPU.c">
       <Filter>src</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\src\main.c">
+    <ClCompile Include="..\..\..\src\instructions.c">
       <Filter>src</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\src\io.c">
+    <ClCompile Include="..\..\..\src\io.c">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\main.c">
       <Filter>src</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\src\c8_actions.h">
+    <ClInclude Include="..\..\..\src\c8_actions.h">
       <Filter>src</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\src\c8_util.h">
+    <ClInclude Include="..\..\..\src\c8_util.h">
       <Filter>src</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\src\CPU.h">
+    <ClInclude Include="..\..\..\src\CPU.h">
       <Filter>src</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\src\instructions.h">
+    <ClInclude Include="..\..\..\src\instructions.h">
       <Filter>src</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\src\io.h">
+    <ClInclude Include="..\..\..\src\io.h">
       <Filter>src</Filter>
     </ClInclude>
   </ItemGroup>

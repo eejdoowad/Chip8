@@ -10,6 +10,21 @@
       <Platform>Win32</Platform>
     </ProjectConfiguration>
   </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\..\src\c8_actions.c" />
+    <ClCompile Include="..\..\..\src\c8_util.c" />
+    <ClCompile Include="..\..\..\src\CPU.c" />
+    <ClCompile Include="..\..\..\src\instructions.c" />
+    <ClCompile Include="..\..\..\src\io.c" />
+    <ClCompile Include="..\..\..\src\main.c" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\..\src\c8_actions.h" />
+    <ClInclude Include="..\..\..\src\c8_util.h" />
+    <ClInclude Include="..\..\..\src\CPU.h" />
+    <ClInclude Include="..\..\..\src\instructions.h" />
+    <ClInclude Include="..\..\..\src\io.h" />
+  </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{B447B2F7-5B2C-410B-AD7E-69D652EC2277}</ProjectGuid>
     <RootNamespace>chip8</RootNamespace>
@@ -41,7 +56,7 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <OutDir>$(SolutionDir)..\bin\</OutDir>
+    <OutDir>$(SolutionDir)..\..\bin\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <OutDir>$(SolutionDir)..\bin\</OutDir>
@@ -76,20 +91,6 @@
       <OptimizeReferences>true</OptimizeReferences>
     </Link>
   </ItemDefinitionGroup>
-  <ItemGroup>
-    <ClCompile Include="..\..\src\c8_actions.c" />
-    <ClCompile Include="..\..\src\c8_util.c" />
-    <ClCompile Include="..\..\src\instructions.c" />
-    <ClCompile Include="..\..\src\io.c" />
-    <ClCompile Include="..\..\src\main.c" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="..\..\src\c8_actions.h" />
-    <ClInclude Include="..\..\src\c8_util.h" />
-    <ClInclude Include="..\..\src\CPU.h" />
-    <ClInclude Include="..\..\src\instructions.h" />
-    <ClInclude Include="..\..\src\io.h" />
-  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
