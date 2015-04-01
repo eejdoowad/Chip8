@@ -1,4 +1,4 @@
-# Unix Build instructions
+# Unix Build Instructions
 
 For platforms like Mac OSX and Ubuntu
 
