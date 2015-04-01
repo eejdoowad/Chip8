@@ -1,14 +1,14 @@
-# Chip8
+# Chip-8
 
-A mostly working, definitely over-engineered, Chip-8 Emulator
+A mostly working, somewhat over-engineered, Chip-8 Emulator
 
-Written in C with SDL2 and supports windows, unix, and the web (via emscripten)
+Written in C with SDL2 and supports windows, unix (tested on ubuntu/mac), and the web (via emscripten)
 
 MIT Licensed
 
 Online demo: http://eejdoowad.github.io/Chip8/ (controls are '2', 'q', 'z', 'x')
 
-Platform-specific build instructions can be found in the build directories
+Platform-specific build instructions can be found in the build subdirectories
 
 References:
 
