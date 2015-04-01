@@ -13,7 +13,7 @@ SOURCES_NO_PATH=$(patsubst $(SOURCEDIR)%,%,$(SOURCES))
 # Mapping: SOURCES => SOURCES_NO_PATH
 # Example: ../../sources/main.c => main.c
 HEADERS=$(wildcard $(SOURCEDIR)*.h)
-OBJECTS=$(patsubst %.cpp,$(OUTDIR)%.o,$(SOURCES_NO_PATH))
+OBJECTS=$(patsubst %.c,$(OUTDIR)%.o,$(SOURCES_NO_PATH))
 
 $(OUTDIR)%.o: $(SOURCEDIR)%.c $(HEADERS)
 	$(CC) -c -o $@ $< $(CFLAGS)
