@@ -1,7 +1,5 @@
 # Makefile
 
-# Compiler
-CC=
 # Name of Output Executable
 OUTPUT=chip8
 # Compiler/Linker Flags
@@ -15,15 +13,10 @@ OBJECTDIR=$(OUTDIR)objects/
 SOURCEDIR=$(ROOTDIR)src/
 EXECUTABLE=$(OUTDIR)$(OUTPUT)
 
-# SE = Source Extension (set to .c or .cpp)
-# HE = Header Extension (set to .h or .hpp)
-SE=.c
-HE=.h
-
 # Gets file paths of headers, sources, and generated objects
-SOURCES=$(wildcard $(SOURCEDIR)*SE)
-HEADERS=$(wildcard $(SOURCEDIR)*HE)
-OBJECTS=$(patsubst $(SOURCEDIR)%SE,$(OBJECTDIR)%.o,$(SOURCES))
+SOURCES:=$(wildcard $(SOURCEDIR)*.c)
+HEADERS=$(wildcard $(SOURCEDIR)*.h)
+OBJECTS=$(patsubst $(SOURCEDIR)%.c,$(OBJECTDIR)%.o,$(SOURCES))
 
 all: $(OBJECTDIR) $(EXECUTABLE)
 
@@ -33,7 +26,7 @@ $(EXECUTABLE): $(OBJECTS) $(HEADERS)
 $(OBJECTDIR):
 	mkdir -p $(OBJECTDIR)
 
-$(OBJECTDIR)%.o: $(SOURCEDIR)%SE $(HEADERS)
+$(OBJECTDIR)%.o: $(SOURCEDIR)%.c $(HEADERS)
 	$(CC) -c -o $@ $< $(CFLAGS)
 
 clean:
