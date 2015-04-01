@@ -1,10 +1,7 @@
 MAIN=../../bin/chip8
 
-# CFLAGS=-g -O2 -Wall -Wextra -Iscr -I/usr/local/include/SDL -D_GNU_SOURCE=1 -D_THREAD_SAFE
-# LDFLAGS=-L/usr/local/lib -lSDLmain -lSDL -Wl,-framework,Cocoa
-CFLAGS=-g -O2 -Wall -Wextra -std=c99
-LDFLAGS=-std=c99
-
+CFLAGS=-g -O2 -Wall -Wextra -std=c99 `sdl2-config --cflags`
+LDFLAGS=-std=c99 `sdl2-config --libs`
 
 SRC=$(wildcard ../../src/*.c)
 OBJ=$(patsubst %.o,%.c,$(SRC))
