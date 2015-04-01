@@ -1,21 +1,14 @@
 # Chip8
 
----This is still a work in progress---
+A mostly working, definitely over-engineered, Chip-8 Emulator
 
-A Chip-8 emulator written in C. Inspired and heavily drawing upon the work of others (see References).
+Written in C with SDL2 and supports windows, unix, and the web (via emscripten)
 
-Currently being ported to the web with emscripten.
+MIT Licensed
 
 Online demo: http://eejdoowad.github.io/Chip8/ (controls are '2', 'q', 'z', 'x')
 
-
-To build on Mac, just call make in the build-mac directory. This generates an executable in the bin directory.
-
-To build on Windows with Visual Studio 2013, open build-windows/chip8.sln, change the configuration to Release mode and hit build.
-Again, an executable will be generated in bin.
-
-This project isn't complete. I'll have better instructions later...
-
+Platform-specific build instructions can be found in the build directories
 
 References:
 
