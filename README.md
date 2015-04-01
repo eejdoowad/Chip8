@@ -1,8 +1,10 @@
-# Chip-8
+# About
 
 A mostly working, somewhat over-engineered, Chip-8 Emulator
 
 Written in C with SDL2 and supports windows, unix (tested on ubuntu/mac), and the web (via emscripten)
+
+![image](http://eejdoowad.github.io/Chip8/pong_demo_img.PNG)
 
 # Online Demo
 
