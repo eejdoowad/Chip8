@@ -1,1 +1,0 @@
-emcc ../../src/c8_actions.c ../../src/c8_util.c ../../src/instructions.c ../../src/io.c ../../src/main.c -s USE_SDL=2 -s LEGACY_GL_EMULATION=0 -o ../../bin/chip8.html --preload-file ../../roms@/
