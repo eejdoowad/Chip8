@@ -5,58 +5,15 @@
         <title>Chip-8 Emulator</title>
         <meta name="description" content="">
         <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-        <style>
-            body {
-                background: #151515;
-                color: white;
-            }
-            a {
-                color: white;
-                /*text-decoration: none;*/
-            }
-            #canvas {
-                display: inline-block;
-                margin: 0 auto 0 auto;
-                width: 100%;
-            }
-            #canvas_area { 
-                left: 0;     
-                width: 100%;
-            }
-            #menu_area {
-                top: 0;
-                left: 0;
-                width: 100%;
-                height: 3%;
-                text-align: center;
-                display: inline-block;
-                vertical-align: top;
-                z-index: 1;
-            }
-            .menu_item_left {
-                margin: 1%;
-                float: left;
-            }
-            .menu_item_center {
-                margin: 1%;
-                float: center;
-            }
-            .menu_item_right {
-                margin: 1%;
-                float: right;
-            }
-            #load_ROM_button{
-                background-color: white;
-                color: black;
-                border:none;
-            }
-        </style>
+        <link rel="stylesheet" type="text/css" href="css/index.css">
+        <link rel="stylesheet" type="text/css" href="css/index.css">
     </head>
     <body>
+
         <div id="menu_area">
-            <div class="menu_item_left">CHIP-8 EMULATOR</div>
-            <div class="menu_item_left">CONTROLS: 1 2 3 4 Q W E R A S D F Z X C V</div>
-            <div class="menu_item_left">
+            <div class="menu_item title">CHIP-8 EMULATOR</div>
+            <div class="menu_item controls">CONTROLS: 1 2 3 4 Q W E R A S D F Z X C V</div>
+            <div class="menu_item roms">
                 <form>
                     <select id="rom_select">
                         <option value="PONG" selected>PONG</option>
@@ -71,19 +28,14 @@
                     <input type="button" rel="nofollow" href="#" value="Load ROM" id="load_ROM_button" onclick="change_ROM_emscripten(document.getElementById('rom_select').value)">
                 </form>
             </div>
-            <div class="menu_item_right">
-                <a href="https://github.com/eejdoowad/Chip8">VIEW ON GITHUB</a>
-            </div>
-            <div class="menu_item_right">
-                <a href="http://dawoodjee.com">SUFYAN DAWOODJEE</a>
-            </div>
-            <div class="menu_item_right">
-                TESTING VERSION
-            </div>
+            <div class="github_spacer"></div>
         </div>
+
         <div id="canvas_area">
             <canvas id="canvas"></canvas>
         </div>
+
+        <a href="https://github.com/eejdoowad/Chip8"><img style="position: absolute; top: 0; right: 0; border: 0; z-index: 101;" src="https://camo.githubusercontent.com/e7bbb0521b397edbd5fe43e7f760759336b5e05f/68747470733a2f2f73332e616d617a6f6e6177732e636f6d2f6769746875622f726962626f6e732f666f726b6d655f72696768745f677265656e5f3030373230302e706e67" alt="Fork me on GitHub" data-canonical-src="https://s3.amazonaws.com/github/ribbons/forkme_right_green_007200.png"></a>
 
         <script type="text/javascript">
             var canvas = document.getElementById("canvas");
@@ -99,7 +51,6 @@
                 change_ROM_emscripten('PONG2');
                 return false;
             }
-
         </script>
         <script type="text/javascript" src="chip8.js"></script>
     </body>

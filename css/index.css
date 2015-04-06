@@ -1,0 +1,66 @@
+body {
+    background: #151515;
+    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    overflow: hidden;
+    max-height: 100%;
+    max-width: 100%;
+    margin: 0;
+    padding: 0;
+}
+a {
+    color: white;
+    /*text-decoration: none;*/
+}
+#canvas_area {
+    position: absolute;
+    width: 100%;
+    top: 50px;
+    margin-top: 0;
+    bottom: 0;
+}
+#canvas {
+    position: relative;
+    height: 100%;
+    width: 100%;
+}
+#menu_area {
+    height: 50px;
+    position: fixed;
+    display: flex;
+    width: 100%;
+    align-items: center;
+    background: rgb(0,255,0);
+    box-shadow: 0 1px 20px rgb(0,240,0);
+    border-bottom: 1px solid rgb(173,255,67);
+    z-index: 100;
+    color: rgb(60, 61, 60);
+    padding: 0 10px;
+}
+.menu_item {
+    flex: 1;
+}
+.menu_item.controls {
+    flex: 2;
+    text-align: center;
+}
+.menu_item.controls ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+.menu_item.controls li {
+
+}
+.menu_item.roms {
+    text-align:right;
+}
+
+.github_spacer {
+    width: 150px;
+}
+
+#load_ROM_button{
+    background-color: white;
+    color: black;
+    border:none;
+}
