@@ -1,0 +1,106 @@
+<!doctype html>
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <title>Chip-8 Emulator</title>
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+        <style>
+            body {
+                background: #151515;
+                color: white;
+            }
+            a {
+                color: white;
+                /*text-decoration: none;*/
+            }
+            #canvas {
+                display: inline-block;
+                margin: 0 auto 0 auto;
+                width: 100%;
+            }
+            #canvas_area { 
+                left: 0;     
+                width: 100%;
+            }
+            #menu_area {
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 3%;
+                text-align: center;
+                display: inline-block;
+                vertical-align: top;
+                z-index: 1;
+            }
+            .menu_item_left {
+                margin: 1%;
+                float: left;
+            }
+            .menu_item_center {
+                margin: 1%;
+                float: center;
+            }
+            .menu_item_right {
+                margin: 1%;
+                float: right;
+            }
+            #load_ROM_button{
+                background-color: white;
+                color: black;
+                border:none;
+            }
+        </style>
+    </head>
+    <body>
+        <div id="menu_area">
+            <div class="menu_item_left">CHIP-8 EMULATOR</div>
+            <div class="menu_item_left">CONTROLS: 1 2 3 4 Q W E R A S D F Z X C V</div>
+            <div class="menu_item_left">
+                <form>
+                    <select id="rom_select">
+                        <option value="PONG" selected>PONG</option>
+                        <option value="PONG2">PONG2</option>
+                        <option value="VERS">VERS</option>
+                        <option value="INVADERS">INVADERS</option>
+                        <option value="BRIX">BRIX</option>
+                        <option value="TANK">TANK</option>
+                        <option value="TETRIS">TETRIS</option>
+                        <option value="UFO">UFO</option>
+                    </select>
+                    <input type="button" rel="nofollow" href="#" value="Load ROM" id="load_ROM_button" onclick="change_ROM_emscripten(document.getElementById('rom_select').value)">
+                </form>
+            </div>
+            <div class="menu_item_right">
+                <a href="https://github.com/eejdoowad/Chip8">VIEW ON GITHUB</a>
+            </div>
+            <div class="menu_item_right">
+                <a href="http://dawoodjee.com">SUFYAN DAWOODJEE</a>
+            </div>
+            <div class="menu_item_right">
+                TESTING VERSION
+            </div>
+        </div>
+        <div id="canvas_area">
+            <canvas id="canvas"></canvas>
+        </div>
+
+        <script type="text/javascript">
+            var canvas = document.getElementById("canvas");
+            // make the canvas fullscreen, can't figure out why it doesn't work
+            //canvas.width = window.innerWidth;
+            //canvas.height = window.innerHeight;
+            // show Emscripten environment where the canvas is
+            var Module = {};
+            Module.canvas = canvas;
+            // generate function for switching roms
+            // change_ROM_emscripten = Module.cwrap('change_ROM_emscripten', null, ['string']);
+            ugh = function(){
+                change_ROM_emscripten('PONG2');
+                return false;
+            }
+
+        </script>
+        <script type="text/javascript" src="chip8.js"></script>
+    </body>
+</html>
